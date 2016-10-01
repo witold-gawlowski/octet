@@ -24,12 +24,12 @@ namespace octet {
       app_scene->get_camera_instance(0)->get_node()->translate(vec3(0, 4, 0));
 
       material *red = new material(vec4(1, 0, 0, 1));
-      material *green = new material(vec4(0, 1, 0, 1));
+      material *green = new material(vec4(0, 1, 1, 1));
       material *blue = new material(vec4(0, 0, 1, 1));
 
       mat4t mat;
       mat.translate(-3, 6, 0);
-      app_scene->add_shape(mat, new mesh_sphere(vec3(2, 2, 2), 2), red, true);
+      app_scene->add_shape(mat, new mesh_sphere(vec3(2, 2, 2), 4), red, true);
 
       mat.loadIdentity();
       mat.translate(0, 10, 0);
