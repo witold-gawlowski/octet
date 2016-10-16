@@ -1,13 +1,5 @@
-////////////////////////////////////////////////////////////////////////////////
-//
-// (C) Andy Thomason 2012-2014
-//
-// Modular Framework for OpenGLES2 rendering on multiple platforms.
-//
 namespace octet {
-  /// Scene containing a box with octet.
   class my_bridge : public app {
-    // scene for drawing box
     ref<visual_scene> app_scene;
 
   collada_builder loader;
@@ -17,16 +9,13 @@ namespace octet {
 
     ~my_bridge() {
     }
-
-    /// this is called once OpenGL is initialized
     void app_init() {
       app_scene =  new visual_scene();
       
       
 
       resource_dict dict;
-      if (!loader.load_xml("assets/projects/my_bridge/meshes/Canyon.DAE")) {
-        // failed to load file
+      if (!loader.load_xml("assets/projects/my_bridge/meshes/Canyon.dae")) {
         return;
       }
       loader.get_resources(dict);
@@ -35,35 +24,39 @@ namespace octet {
       dict.find_all(meshes, atom_mesh);
 
       if (meshes.size()) {
-        material *mat = new material(new image("assets/duckCM.gif"));
+        material *mat = new material(vec4(0.25f, 0.25f, 0.5f, 1));
         mesh *canyon = meshes[0]->get_mesh();
         scene_node *node = new scene_node();
         node->translate(vec3(0, 0, 0));
-        node->scale(vec3(10, 10, 10));
         app_scene->add_child(node);
         app_scene->add_mesh_instance(new mesh_instance(node, canyon, mat));
       }
-      // if I put it at the beggining it wont draw a canyon, why?
-      app_scene->create_default_camera_and_lights(); 
+      app_scene->create_default_camera_and_lights();
+      scene_node *camera_node = app_scene->get_camera_instance(0)->get_node();
+      camera_node->loadIdentity();
+      //camera_node->rotate(90, vec3(1, 0, 0));
+      //camera_node->rotate(30, vec3(1, 0, 0));
+      //camera_node->rotate(30, vec3(0, 1, 0));
+      //camera_node->translate(vec3(-500, 1000, 500));
+      camera_node->translate(vec3(9, 0, 500));
+      /*camera_node->rotate(90, vec3(1, 0, 0));
+      camera_node->rotate(90, vec3(0, 1, 0));
+      camera_node->translate(vec3(0, 0, 100));*/
+      /*the internal units in octet are centimeters, right?
+      I have imported a model in collada, and everything looks like they are.*/
+
+
+
+      vec3 camera_position = app_scene->get_camera_instance(0)->get_node()->get_position();
+      printf("%f %f %f", camera_position.x(), camera_position.y(), camera_position.z());
     }
 
-    /// this is called to draw the world
     void draw_world(int x, int y, int w, int h) {
       int vx = 0, vy = 0;
       get_viewport_size(vx, vy);
       app_scene->begin_render(vx, vy);
-
-      // update matrices. assume 30 fps.
       app_scene->update(1.0f/30);
-
-      // draw the scene
       app_scene->render((float)vx / vy);
-      mesh_instance *mi = app_scene->get_mesh_instance(0);
-      if (mi) {
-        scene_node *node = mi->get_node();
-        node->rotate(1, vec3(1, 0, 0));
-        node->rotate(1, vec3(0, 1, 0));
-      }
     }
   };
 }
