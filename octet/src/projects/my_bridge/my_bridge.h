@@ -34,16 +34,7 @@ namespace octet {
       app_scene->create_default_camera_and_lights();
       scene_node *camera_node = app_scene->get_camera_instance(0)->get_node();
       camera_node->loadIdentity();
-      //camera_node->rotate(90, vec3(1, 0, 0));
-      //camera_node->rotate(30, vec3(1, 0, 0));
-      //camera_node->rotate(30, vec3(0, 1, 0));
-      //camera_node->translate(vec3(-500, 1000, 500));
-      camera_node->translate(vec3(9, 0, 500));
-      /*camera_node->rotate(90, vec3(1, 0, 0));
-      camera_node->rotate(90, vec3(0, 1, 0));
-      camera_node->translate(vec3(0, 0, 100));*/
-      /*the internal units in octet are centimeters, right?
-      I have imported a model in collada, and everything looks like they are.*/
+    
 
 
 
