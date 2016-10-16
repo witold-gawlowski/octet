@@ -1,3 +1,5 @@
 *.db
 *.log
 *.opendb
+octet/src/projects/my_bridge/example_shapes.xcodeproj/project.pbxproj
+octet/src/projects/my_bridge/example_shapes.xcodeproj/project.xcworkspace/contents.xcworkspacedata
