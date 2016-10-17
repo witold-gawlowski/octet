@@ -12,6 +12,7 @@
 #include <windows.h>
 #include <mmsystem.h>
 
+
 #include <ShellAPI.h> // for DragAcceptFiles etc.
 
 // undo unwanted definitions that Microsoft make in windows.h
