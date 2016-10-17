@@ -74,6 +74,10 @@ namespace octet {
       else if (this->is_key_down('E')) {
         camera_node->translate(vec3(0, -1, 0));
       }
+      else if (this->is_key_down(' ')) {
+        //dupm position into the console
+        printf("%f %f %f\n", camera_node->get_position().x(), camera_node->get_position().y(), camera_node->get_position().z());
+      }
       mat4t &camera_to_world = camera_node->access_nodeToParent();
       mouse_look_helper.update(camera_to_world);
       int vx = 0, vy = 0;
