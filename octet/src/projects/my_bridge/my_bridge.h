@@ -1,7 +1,7 @@
 namespace octet {
   class my_bridge : public app {
     ref<visual_scene> app_scene;
-
+  scene_node *camera_node;
   collada_builder loader;
   public:
     my_bridge(int argc, char **argv) : app(argc, argv) {
@@ -32,9 +32,19 @@ namespace octet {
         app_scene->add_mesh_instance(new mesh_instance(node, canyon, mat));
       }
       app_scene->create_default_camera_and_lights();
-      scene_node *camera_node = app_scene->get_camera_instance(0)->get_node();
+
+      camera_node = app_scene->get_camera_instance(0)->get_node();
       camera_node->loadIdentity();
-    
+      //camera_node->rotate(90, vec3(1, 0, 0));
+      //camera_node->rotate(30, vec3(1, 0, 0));
+      //camera_node->rotate(30, vec3(0, 1, 0));
+      //camera_node->translate(vec3(-500, 1000, 500));
+      camera_node->translate(vec3(0, 0, 500));
+      //camera_node->rotate(10, vec3(1, 0, ));
+      //camera_node->rotate(90, vec3(0, 1, 0));
+      //camera_node->translate(vec3(0, 0, 100));
+      /*the internal units in octet are centimeters, right?
+      I have imported a model in collada, and everything looks like they are.*/
 
 
 
@@ -43,6 +53,13 @@ namespace octet {
     }
 
     void draw_world(int x, int y, int w, int h) {
+      if (this->is_key_down('A')) {
+        camera_node->translate(vec3(1, 0, 0));
+      }
+      else if (this->is_key_down('S')) {
+        camera_node->translate(vec3(0, 1, 0));
+      }
+
       int vx = 0, vy = 0;
       get_viewport_size(vx, vy);
       app_scene->begin_render(vx, vy);
