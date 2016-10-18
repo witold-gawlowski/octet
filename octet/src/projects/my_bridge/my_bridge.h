@@ -26,7 +26,7 @@ namespace octet {
         mesh *canyon = meshes[0]->get_mesh();
         scene_node *node = new scene_node();
         //bellow transformation needs to be done for any data that comes from blender to opengl. 
-        //node->rotate(-90, vec3(1, 0, 0));
+        node->rotate(-90, vec3(1, 0, 0));
         app_scene->add_child(node);
         app_scene->add_mesh_instance(new mesh_instance(node, canyon, mat));
       }
@@ -50,7 +50,8 @@ namespace octet {
         ifs >> scl[0] >> scl[1] >> scl[2];
         mat4t mat(rot);
         mat.translate(pos[0], pos[1], pos[2]);
-        app_scene->add_shape(mat, new mesh_box(vec3(scl[0], scl[1], scl[2])), red, false);
+        mesh_instance *col = app_scene->add_shape(mat, new mesh_box(vec3(scl[0], scl[1], scl[2])), red, false);
+        
         //std::cout << pos[0] << " " << rot[1] << " " << scl[2] << std::endl;
       }
 
