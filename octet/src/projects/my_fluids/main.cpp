@@ -19,7 +19,7 @@ int main(int argc, char **argv) {
   octet::app::init_all(argc, argv);
 
   // our application.
-  octet::my_fluids app(argc, argv);
+  octet::example_fluids app(argc, argv);
   app.init();
 
   // open windows

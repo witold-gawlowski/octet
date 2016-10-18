@@ -12,7 +12,7 @@
 
 namespace octet {
   /// Scene containing a box with octet.
-  class example_fluids : public app {
+  class my_fluids : public app {
     // scene for drawing box
     ref<visual_scene> app_scene;
 
@@ -266,7 +266,7 @@ namespace octet {
     ref<mesh_fluid> the_mesh;
   public:
     /// this is called when we construct the class before everything is initialised.
-    example_fluids(int argc, char **argv) : app(argc, argv) {
+    my_fluids(int argc, char **argv) : app(argc, argv) {
     }
 
     /// this is called once OpenGL is initialized
