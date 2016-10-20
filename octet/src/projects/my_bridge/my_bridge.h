@@ -14,7 +14,7 @@ namespace octet {
     ~my_bridge() {
     }
     void app_init() {
-      app_scene =  new visual_scene();
+      app_scene = new visual_scene();
 
       //importing collada canyon:
       resource_dict dict;
@@ -41,8 +41,9 @@ namespace octet {
       the_camera = app_scene->get_camera_instance(0);
       the_camera->get_node()->loadIdentity();
       the_camera->set_far_plane(10000);
+      the_camera->set_near_plane(0.4f);
 
-      
+
       //preparing player
       float player_height = 1.83f;
       float player_radius = 0.25f;
@@ -75,12 +76,21 @@ namespace octet {
         mat.rotateX(90);
         mat.translate(pos[0], pos[1], pos[2]);
         mesh_instance *col = app_scene->add_shape(mat, new mesh_box(vec3(scl[0], scl[1], scl[2])), red, false);
-        
         //std::cout << pos[0] << " " << rot[1] << " " << scl[2] << std::endl;
       }
 
+      //now read and add bridge elements
+      ifs >> n;
+      for (int i = 0; i < n; i++) {
+        ifs >> pos[0] >> pos[1] >> pos[2];
+        ifs >> rot[0] >> rot[1] >> rot[2] >> rot[3];
+        ifs >> scl[0] >> scl[1] >> scl[2];
+        mat4t mat(rot);
+        mat.rotateX(90);
+        mat.translate(pos[0], pos[1], pos[2]);
+        mesh_instance *col = app_scene->add_shape(mat, new mesh_box(vec3(scl[0], scl[1], scl[2])), red, false);
+      }
     }
-
 
 
     void draw_world(int x, int y, int w, int h) {
