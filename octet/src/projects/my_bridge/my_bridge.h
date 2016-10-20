@@ -79,7 +79,13 @@ namespace octet {
         //std::cout << pos[0] << " " << rot[1] << " " << scl[2] << std::endl;
       }
 
-      //now read and add bridge elements
+      //now read, add and bind bridge elements3
+      btVector3 axisA(1.0f, 0.0f, 0.0f);
+      btVector3 axisB(1.0f, 0.0f, 0.0f);
+      btVector3 pivotA(0, -0.6f, 0.f);
+      btVector3 pivotB(0, 0.6f, 0.f);
+      btHingeConstraint *bridge_hinge;
+      mesh_instance *previous_col = NULL;
       ifs >> n;
       for (int i = 0; i < n; i++) {
         ifs >> pos[0] >> pos[1] >> pos[2];
@@ -88,7 +94,18 @@ namespace octet {
         mat4t mat(rot);
         mat.rotateX(90);
         mat.translate(pos[0], pos[1], pos[2]);
-        mesh_instance *col = app_scene->add_shape(mat, new mesh_box(vec3(scl[0], scl[1], scl[2])), red, false);
+        mesh_instance *col = app_scene->add_shape(mat, new mesh_box(vec3(scl[0], scl[1], scl[2])), red, (i==0||i==n-1) ? false : true);
+        //printf("%d bool: %d\n", previous_col, previous_col != NULL);
+        if (previous_col) {
+          btRigidBody *rbA = previous_col->get_node()->get_rigid_body();
+          btRigidBody *rbB = col->get_node()->get_rigid_body();
+          bridge_hinge = new btHingeConstraint(*rbA, *rbB, pivotA, pivotB, axisA, axisB);
+          bridge_hinge->setLimit(-SIMD_HALF_PI * 0.5f, SIMD_HALF_PI * 0.5f);
+          //if(i!=n-1)
+            app_scene->add_my_hinge(bridge_hinge);
+        }
+        previous_col = col;
+        
       }
     }
 

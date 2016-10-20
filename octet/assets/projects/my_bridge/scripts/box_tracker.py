@@ -17,12 +17,12 @@ bridge_elems = [item for item in list(bpy.data.objects) if "bridge_box" in item.
 #colliders first
 wr.writerow([len(colliders)])
 for b in colliders:
-  wr.writerow([b.location[0], b.location[1], b.location[2], b.rotation_quaterion[0], b.rotation_quaterion[1], b.rotation_quaterion[2], b.rotation_quaterion[3], b.scale[0], b.scale[1], b.scale[2]])
+  wr.writerow([b.location[0], b.location[1], b.location[2], b.rotation_quaternion[0], b.rotation_quaternion[1], b.rotation_quaternion[2], b.rotation_quaternion[3], b.scale[0], b.scale[1], b.scale[2]])
 #now bridge elements
 
 wr.writerow([len(bridge_elems)])
 
 for b in bridge_elems:
-  wr.writerow([b.location[0], b.location[1], b.location[2], b.rotation_quaterion[0], b.rotation_quaterion[1], b.rotation_quaterion[2], b.rotation_quaterion[3], b.scale[0], b.scale[1], b.scale[2]])
+  wr.writerow([b.location[0], b.location[1], b.location[2], b.rotation_quaternion[0], b.rotation_quaternion[1], b.rotation_quaternion[2], b.rotation_quaternion[3], b.scale[0], b.scale[1], b.scale[2]])
 
 file_.close()
