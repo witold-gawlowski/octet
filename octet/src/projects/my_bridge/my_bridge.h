@@ -1,9 +1,12 @@
 namespace octet {
   class my_bridge : public app {
     ref<visual_scene> app_scene;
-    scene_node *camera_node;
+    ref<camera_instance> the_camera;
     mouse_look mouse_look_helper;
+    ref<scene_node> player_node;
+    helper_fps_controller fps_helper;
     collada_builder loader;
+
   public:
     my_bridge(int argc, char **argv) : app(argc, argv) {
     }
@@ -31,11 +34,31 @@ namespace octet {
         app_scene->add_mesh_instance(new mesh_instance(node, canyon, mat));
       }
 
-      //setting up camera and mouse helper
+      //setting up camera, mouse helper and fps helper
       mouse_look_helper.init(this, 50.0f / 360.0f, false);
+      fps_helper.init(this);
       app_scene->create_default_camera_and_lights();
-      camera_node = app_scene->get_camera_instance(0)->get_node();
-      camera_node->loadIdentity();
+      the_camera = app_scene->get_camera_instance(0);
+      the_camera->get_node()->loadIdentity();
+      the_camera->set_far_plane(10000);
+
+      
+      //preparing player
+      float player_height = 1.83f;
+      float player_radius = 0.25f;
+      float player_mass = 90.0f;
+      mat4t player_mat;
+      player_mat.loadIdentity();
+      player_mat.translate(0, 5, 16);
+
+      mesh_instance *mi = app_scene->add_shape(
+        player_mat,
+        new mesh_sphere(vec3(0), player_radius),
+        new material(vec4(0, 0, 1, 1)),
+        true, player_mass,
+        new btCapsuleShape(0.25f, player_height)
+      );
+      player_node = mi->get_node();
 
       //read and add world colliders
       material *red = new material(vec4(1, 0, 0, 1));
@@ -49,6 +72,7 @@ namespace octet {
         ifs >> rot[0] >> rot[1] >> rot[2] >> rot[3];
         ifs >> scl[0] >> scl[1] >> scl[2];
         mat4t mat(rot);
+        mat.rotateX(90);
         mat.translate(pos[0], pos[1], pos[2]);
         mesh_instance *col = app_scene->add_shape(mat, new mesh_box(vec3(scl[0], scl[1], scl[2])), red, false);
         
@@ -60,6 +84,8 @@ namespace octet {
 
 
     void draw_world(int x, int y, int w, int h) {
+      //moving around the ghost
+      /*
       if (this->is_key_down('W')) {
         camera_node->translate(vec3(0, 0, -1));
       }
@@ -82,8 +108,10 @@ namespace octet {
         //dupm position into the console
         printf("%f %f %f\n", camera_node->get_position().x(), camera_node->get_position().y(), camera_node->get_position().z());
       }
-      mat4t &camera_to_world = camera_node->access_nodeToParent();
+      */
+      mat4t &camera_to_world = the_camera->get_node()->access_nodeToParent();
       mouse_look_helper.update(camera_to_world);
+      fps_helper.update(player_node, the_camera->get_node());
       int vx = 0, vy = 0;
       get_viewport_size(vx, vy);
       app_scene->begin_render(vx, vy);
