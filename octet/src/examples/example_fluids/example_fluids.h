@@ -71,6 +71,7 @@ namespace octet {
       void set_boundary( int N, int b, float * x ) {
         auto IX = [=](int i, int j) { return i +(N+2)*j; };
 
+        //W: i need to keep distance from boxes so that moving them does not consume fluid
 	      for ( int i=1 ; i<=N ; i++ ) {
 		      x[IX(0  ,i)] = b==1 ? -x[IX(1,i)] : x[IX(1,i)];
 		      x[IX(N+1,i)] = b==1 ? -x[IX(N,i)] : x[IX(N,i)];
@@ -254,7 +255,8 @@ namespace octet {
           for (int j = 0; j <= dim.y(); ++j) {
             my_vertex v;
             v.pos = vec3p(i * sx + cx, j * sy + cy, 0);
-            v.color = vec3p(std::max(0.0f, std::min(density[i+j*stride], 1.0f) ), 0, 0);
+            float color_value = std::max(0.0f, std::min(density[i + j*stride], 1.0f));
+            v.color = vec3p(color_value/3.0f, color_value, color_value/3.0f);
             vertices[d++] = v;
           }
         }
@@ -275,7 +277,7 @@ namespace octet {
       app_scene->create_default_camera_and_lights();
 
       material *red = new material(vec4(1, 0, 0, 1), new param_shader("shaders/simple_color.vs", "shaders/simple_color.fs"));
-      the_mesh = new mesh_fluid(aabb(vec3(0), vec3(10)), ivec3(100, 100, 0));
+      the_mesh = new mesh_fluid(aabb(vec3(0), vec3(15)), ivec3(100, 100, 0));
       scene_node *node = new scene_node();
       app_scene->add_child(node);
       app_scene->add_mesh_instance(new mesh_instance(node, the_mesh, red));
