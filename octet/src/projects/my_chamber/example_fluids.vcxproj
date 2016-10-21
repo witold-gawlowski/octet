@@ -14,6 +14,7 @@
     <ProjectGuid>{6722CC8F-3FC9-4B11-B7AE-918054DD5ACA}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>example_fluids</RootNamespace>
+    <ProjectName>my_chamber</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
@@ -215,7 +216,7 @@
     <ClInclude Include="..\..\shaders\shader.h" />
     <ClInclude Include="..\..\shaders\shaders.h" />
     <ClInclude Include="..\..\shaders\texture_shader.h" />
-    <ClInclude Include="example_fluids.h" />
+    <ClInclude Include="my_chamber.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\resources\mesh_builder.inl" />
