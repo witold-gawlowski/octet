@@ -46,8 +46,8 @@ namespace octet {
 
       //preparing player
       float player_height = 1.83f;
-      float player_radius = 0.25f;
-      float player_mass = 90.0f;
+      float player_radius = 0.35f;
+      float player_mass = 10.0f;
       mat4t player_mat;
       player_mat.loadIdentity();
       player_mat.translate(0, 5, 16);
@@ -57,7 +57,7 @@ namespace octet {
         new mesh_sphere(vec3(0), player_radius),
         new material(vec4(0, 0, 1, 1)),
         true, player_mass,
-        new btCapsuleShape(0.25f, player_height)
+        new btCapsuleShape(0.95f, player_height)
       );
       player_node = mi->get_node();
 
@@ -82,8 +82,8 @@ namespace octet {
       //now read, add and bind bridge elements3
       btVector3 axisA(1.0f, 0.0f, 0.0f);
       btVector3 axisB(1.0f, 0.0f, 0.0f);
-      btVector3 pivotA(0, -0.6f, 0.f);
-      btVector3 pivotB(0, 0.6f, 0.f);
+      btVector3 pivotA(0, -0.75f, 0.f);
+      btVector3 pivotB(0, 0.75f, 0.f);
       btHingeConstraint *bridge_hinge;
       mesh_instance *previous_col = NULL;
       ifs >> n;
@@ -94,18 +94,23 @@ namespace octet {
         mat4t mat(rot);
         mat.rotateX(90);
         mat.translate(pos[0], pos[1], pos[2]);
-        mesh_instance *col = app_scene->add_shape(mat, new mesh_box(vec3(scl[0], scl[1], scl[2])), red, (i==0||i==n-1) ? false : true);
+        mesh_instance *col = app_scene->add_shape(mat, new mesh_box(vec3(scl[0], scl[1], scl[2])), red, (i==0||i==n-1) ? false : true, 5.0f);
+        btRigidBody *rbA; 
+        btRigidBody *rbB = col->get_node()->get_rigid_body();
+        rbB->setDamping(0.1f, 0.1f);
+        rbB->applyDamping(0.15f);
         //printf("%d bool: %d\n", previous_col, previous_col != NULL);
         if (previous_col) {
-          btRigidBody *rbA = previous_col->get_node()->get_rigid_body();
-          btRigidBody *rbB = col->get_node()->get_rigid_body();
+          rbA = previous_col->get_node()->get_rigid_body();
           bridge_hinge = new btHingeConstraint(*rbA, *rbB, pivotA, pivotB, axisA, axisB);
           bridge_hinge->setLimit(-SIMD_HALF_PI * 0.5f, SIMD_HALF_PI * 0.5f);
-          //if(i!=n-1)
-            app_scene->add_my_hinge(bridge_hinge);
+          //what is CRP and ERP here: http://bulletphysics.org/mediawiki-1.5.8/index.php/Definitions
+          bridge_hinge->setParam(BT_CONSTRAINT_STOP_ERP, 0.8);
+          bridge_hinge->setParam(BT_CONSTRAINT_STOP_CFM, 0.1);  
+          bridge_hinge->setParam(BT_CONSTRAINT_CFM, 0.05);
+          app_scene->add_my_hinge(bridge_hinge);
         }
         previous_col = col;
-        
       }
     }
 
