@@ -1,0 +1,8 @@
+* breath loudness peaks at the middle of the bridge
+* black void beneath
+* night, stars
+* light, sea-blue, sunlit tops
+* hearable voidy sound of vacuum or smth
+* player starts in the cave and gets his voice louder as he enters the ledge
+* callision callback triggering character breathing when stepping over the bridge
+* blacout screen when falling
