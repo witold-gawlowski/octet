@@ -1,0 +1,7 @@
+* basically block-moving game + gas puzzle
+* View form the top, movable blocks
+* level of gas influences the health decrease
+* Fluid Gas (color crucial)
+* Shader for shading the space from character perspective 
+* Compute shaders to speed up 
+* i can add shadow shader if i have to or there is no time for compute 
