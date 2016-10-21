@@ -82,8 +82,8 @@ namespace octet {
       //now read, add and bind bridge elements3
       btVector3 axisA(1.0f, 0.0f, 0.0f);
       btVector3 axisB(1.0f, 0.0f, 0.0f);
-      btVector3 pivotA(0, -0.75f, 0.f);
-      btVector3 pivotB(0, 0.75f, 0.f);
+      btVector3 pivotA(0, -0.68f, 0.f);
+      btVector3 pivotB(0, 0.68f, 0.f);
       btHingeConstraint *bridge_hinge;
       mesh_instance *previous_col = NULL;
       ifs >> n;
