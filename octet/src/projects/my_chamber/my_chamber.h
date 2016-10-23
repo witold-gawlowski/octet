@@ -1,34 +1,13 @@
-////////////////////////////////////////////////////////////////////////////////
-//
-//(C) Andy Thomason 2012-2014
-//
-// Modular Framework for OpenGLES2 rendering on multiple platforms.
-//
-// fluid example based on Joss Stam paper.
-//
-
 #include <valarray>
 #include <memory>
 
 namespace octet {
-  
-  /// Scene containing a box with octet.
   class my_chamber : public app {
-    //W: Can I put this lenghty class somwhere else?
     class sprite {
-      // where is our sprite (overkill for a 2D game!)
       mat4t modelToWorld;
-
-      // half the width of the sprite
       float halfWidth;
-
-      // half the height of the sprite
       float halfHeight;
-
-      // what texture is on our sprite
       int texture;
-
-      // true if this sprite is enabled.
       bool enabled;
     public:
       sprite() {
@@ -113,9 +92,6 @@ namespace octet {
       bool collides_with(const sprite &rhs) const {
         float dx = rhs.modelToWorld[3][0] - modelToWorld[3][0];
         float dy = rhs.modelToWorld[3][1] - modelToWorld[3][1];
-
-        // both distances have to be under the sum of the halfwidths
-        // for a collision
         return
           (fabsf(dx) < halfWidth + rhs.halfWidth) &&
           (fabsf(dy) < halfHeight + rhs.halfHeight)
@@ -133,9 +109,6 @@ namespace octet {
         return enabled;
       }
     };
-    // scene for drawing box
-    ref<visual_scene> app_scene;
-
     class mesh_fluid : public mesh {
       struct my_vertex {
         vec3p pos;
@@ -384,38 +357,52 @@ namespace octet {
         mesh::set_vertices<my_vertex>(vertices);
       }
     };
-
+    enum {
+      hero_sprite = 0,
+      first_box_sprite,
+      num_sprites
+    };
+    mat4t cameraToWorld;
+    texture_shader texture_shader_;
     ref<mesh_fluid> the_mesh;
+    ref<visual_scene> app_scene;
+    sprite sprites[num_sprites]; 
   public:
-    /// this is called when we construct the class before everything is initialised.
-    my_chamber(int argc, char **argv) : app(argc, argv) {
-    }
-
-    /// this is called once OpenGL is initialized
+    my_chamber(int argc, char **argv) : app(argc, argv) {}
     void app_init() {
       app_scene =  new visual_scene();
       app_scene->create_default_camera_and_lights();
+
+      cameraToWorld.loadIdentity();
+      cameraToWorld.translate(vec3(0, 0, 3));
+      texture_shader_.init();
 
       material *red = new material(vec4(1, 0, 0, 1), new param_shader("shaders/simple_color.vs", "shaders/simple_color.fs"));
       the_mesh = new mesh_fluid(aabb(vec3(0), vec3(15)), ivec3(100, 100, 0));
       scene_node *node = new scene_node();
       app_scene->add_child(node);
       app_scene->add_mesh_instance(new mesh_instance(node, the_mesh, red));
+
+      GLuint hero = resource_dict::get_texture_handle(GL_RGBA, "assets/invaderers/ship.gif");
+      sprites[hero_sprite].init(hero, 0, 0, 1, 1);
     }
 
-    /// this is called to draw the world
     void draw_world(int x, int y, int w, int h) {
       int vx = 0, vy = 0;
+      //W: why does this happen here? Why cant the viewport be size be passed inside begin_render?
       get_viewport_size(vx, vy);
       app_scene->begin_render(vx, vy, vec4(0, 0, 0, 1));
+      //W: correct ++i operator in my_bridge
 
-      the_mesh->update(get_frame_number());
-
-      // update matrices. assume 30 fps.
+      //W: Strange: the_mesh update actually hides drawn sprites from visibilty(precisely set_vertices function). Why?
+      //the_mesh->update(get_frame_number());
       app_scene->update(1.0f/30);
+      //app_scene->render((float)vx / vy);
 
-      // draw the scene
-      app_scene->render((float)vx / vy);
+      for (int i = 0; i < num_sprites; ++i) {
+        sprites[i].render(texture_shader_, cameraToWorld);
+        
+      }
     }
   };
 }
