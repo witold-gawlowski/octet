@@ -395,7 +395,7 @@ namespace octet {
       //W: correct ++i operator in my_bridge
 
       //W: Strange: the_mesh update actually hides drawn sprites from visibilty(precisely set_vertices function). Why?
-      //the_mesh->update(get_frame_number());
+      the_mesh->update(get_frame_number());
       app_scene->update(1.0f/30);
       //app_scene->render((float)vx / vy);
 
