@@ -207,6 +207,7 @@
     <ClInclude Include="..\..\scene\skeleton.h" />
     <ClInclude Include="..\..\scene\skin.h" />
     <ClInclude Include="..\..\scene\smooth.h" />
+    <ClInclude Include="..\..\scene\sprite.h" />
     <ClInclude Include="..\..\scene\visual_scene.h" />
     <ClInclude Include="..\..\scene\wireframe.h" />
     <ClInclude Include="..\..\shaders\bump_shader.h" />

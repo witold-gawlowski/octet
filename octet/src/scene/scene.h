@@ -34,6 +34,7 @@
 #include "../scene/mesh_sphere.h"
 #include "../scene/mesh_particle_system.h"
 #include "../scene/mesh_terrain.h"
+#include "../scene/sprite.h"
 #ifdef OCTET_VOXEL_TEST
   #include "../scene/mesh_voxel_subcube.h"
   #include "../scene/mesh_voxels.h"
@@ -42,6 +43,7 @@
 #include "../scene/wireframe.h"
 #include "../scene/mesh_voxel_grid.h"
 
+//W: why is this?
 namespace octet {
   using namespace scene;
 }
