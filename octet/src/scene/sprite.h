@@ -21,6 +21,15 @@ namespace octet {
         enabled = true;
       }
 
+      vec3 get_size()
+      {
+        return vec3(halfWidth, halfHeight, 0);
+      }
+      mat4t_rc get_modelToWorld()
+      {
+        return modelToWorld;
+      }
+
       void render(texture_shader &shader, mat4t &cameraToWorld) {
         // invisible sprite... used for gameplay.
         if (!texture) return;

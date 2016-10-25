@@ -25,7 +25,7 @@ namespace octet { namespace math {
   /// 4x4 Matrix class
   class mat4t {
     // these vectors are the x, y, z, w components. w is the translation.
-    vec4 v[4];
+    vec4 v[4];  
     static const char *Copyright() { return "Copyright(C) Andy Thomason 2012-2014"; }
   public:
     /// Construct an identity matrix
@@ -492,7 +492,7 @@ namespace octet { namespace math {
     {
       char buf[4][256];
       snprintf(
-        dest, len, "[%s, %s, %s, %s]",
+        dest, len, "[%s,\n %s,\n %s,\n %s]",
         v[0].toString(buf[0], sizeof(buf[0])),
         v[1].toString(buf[1], sizeof(buf[1])),
         v[2].toString(buf[2], sizeof(buf[2])),
@@ -655,4 +655,5 @@ namespace octet { namespace math {
   static inline mat4t inverse4x4(const mat4t &v) {
     return v.inverse4x4();
   }
+
 } }

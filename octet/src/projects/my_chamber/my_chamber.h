@@ -1,6 +1,8 @@
 #include <valarray>
 #include <memory>
 
+//#define DEBUG
+
 namespace octet {
   class my_chamber : public app {
     
@@ -9,13 +11,13 @@ namespace octet {
         vec3p pos;
         vec3p color;
       };
-      class sprite_group
+      class fluid_blocker
       {
-        int size;
-        const sprite * const tab;
+        vec3p pos;
+        vec3p half_size;
       public:
-        sprite_group(int size, const sprite * const tab) : size(size), tab(tab) {}
-
+        fluid_blocker(vec3p pos, vec3p hs) : pos(pos), half_size(hs) {}
+        fluid_blocker(sprite s) :pos(s.get_modelToWorld().colw().xyz()), half_size(s.get_size()) {};
       };
 
       dynarray<my_vertex> vertices;
@@ -290,6 +292,14 @@ namespace octet {
 
       GLuint hero = resource_dict::get_texture_handle(GL_RGBA, "assets/invaderers/ship.gif");
       sprites[hero_sprite].init(hero, 0, 0, 1, 1);
+
+//W: why is ifdef not working?
+#ifdef DEBUG
+      char buff[200];
+      sprites[hero_sprite].translate(1, -2);
+      sprites[hero_sprite].get_modelToWorld().toString(buff, 200);
+      printf("%s", buff);
+#endif
     }
 
     void draw_world(int x, int y, int w, int h) {
