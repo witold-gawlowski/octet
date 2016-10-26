@@ -1,139 +1,6 @@
-////////////////////////////////////////////////////////////////////////////////
-//
-//(C) Andy Thomason 2012-2014
-//
-// Modular Framework for OpenGLES2 rendering on multiple platforms.
-//
-// fluid example based on Joss Stam paper.
-//
-
-#include <valarray>
 #include <memory>
-
 namespace octet {
-  
-  /// Scene containing a box with octet.
-  class my_chamber : public app {
-    //W: Can I put this lenghty class somwhere else?
-    class sprite {
-      // where is our sprite (overkill for a 2D game!)
-      mat4t modelToWorld;
-
-      // half the width of the sprite
-      float halfWidth;
-
-      // half the height of the sprite
-      float halfHeight;
-
-      // what texture is on our sprite
-      int texture;
-
-      // true if this sprite is enabled.
-      bool enabled;
-    public:
-      sprite() {
-        texture = 0;
-        enabled = true;
-      }
-
-      void init(int _texture, float x, float y, float w, float h) {
-        modelToWorld.loadIdentity();
-        modelToWorld.translate(x, y, 0);
-        halfWidth = w * 0.5f;
-        halfHeight = h * 0.5f;
-        texture = _texture;
-        enabled = true;
-      }
-
-      void render(texture_shader &shader, mat4t &cameraToWorld) {
-        // invisible sprite... used for gameplay.
-        if (!texture) return;
-
-        // build a projection matrix: model -> world -> camera -> projection
-        // the projection space is the cube -1 <= x/w, y/w, z/w <= 1
-        mat4t modelToProjection = mat4t::build_projection_matrix(modelToWorld, cameraToWorld);
-
-        // set up opengl to draw textured triangles using sampler 0 (GL_TEXTURE0)
-        glActiveTexture(GL_TEXTURE0);
-        //Calling glBindTexture with target set to GL_TEXTURE_2D or GL_TEXTURE_CUBE_MAP and
-        //texture set to the name of the new texture binds the texture name to the target of the current active texture unit.
-        glBindTexture(GL_TEXTURE_2D, texture);
-
-        // use "old skool" rendering
-        //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
-        //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        shader.render(modelToProjection, 0);
-
-        // this is an array of the positions of the corners of the sprite in 3D
-        // a straight "float" here means this array is being generated here at runtime.
-        float vertices[] = {
-          -halfWidth, -halfHeight, 0,
-          halfWidth, -halfHeight, 0,
-          halfWidth,  halfHeight, 0,
-          -halfWidth,  halfHeight, 0,
-        };
-
-        // attribute_pos (=0) is position of each corner
-        // each corner has 3 floats (x, y, z)
-        // there is no gap between the 3 floats and hence the stride is 3*sizeof(float)
-        glVertexAttribPointer(attribute_pos, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)vertices);
-        glEnableVertexAttribArray(attribute_pos);
-
-        // this is an array of the positions of the corners of the texture in 2D
-        static const float uvs[] = {
-          0,  0,
-          1,  0,
-          1,  1,
-          0,  1,
-        };
-
-        // attribute_uv is position in the texture of each corner
-        // each corner (vertex) has 2 floats (x, y)
-        // there is no gap between the 2 floats and hence the stride is 2*sizeof(float)
-        glVertexAttribPointer(attribute_uv, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)uvs);
-        glEnableVertexAttribArray(attribute_uv);
-
-        // finally, draw the sprite (4 vertices)
-        glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
-      }
-
-      // move the object
-      void translate(float x, float y) {
-        modelToWorld.translate(x, y, 0);
-      }
-
-      // position the object relative to another.
-      void set_relative(sprite &rhs, float x, float y) {
-        modelToWorld = rhs.modelToWorld;
-        modelToWorld.translate(x, y, 0);
-      }
-
-      // return true if this sprite collides with another.
-      // note the "const"s which say we do not modify either sprite
-      bool collides_with(const sprite &rhs) const {
-        float dx = rhs.modelToWorld[3][0] - modelToWorld[3][0];
-        float dy = rhs.modelToWorld[3][1] - modelToWorld[3][1];
-
-        // both distances have to be under the sum of the halfwidths
-        // for a collision
-        return
-          (fabsf(dx) < halfWidth + rhs.halfWidth) &&
-          (fabsf(dy) < halfHeight + rhs.halfHeight)
-          ;
-      }
-
-      bool is_above(const sprite &rhs, float margin) const {
-        float dx = rhs.modelToWorld[3][0] - modelToWorld[3][0];
-
-        return
-          (fabsf(dx) < halfWidth + margin);
-      }
-
-      bool &is_enabled() {
-        return enabled;
-      }
-    };
-    // scene for drawing box
+  class my_chamber : public app {  
     ref<visual_scene> app_scene;
 
     class mesh_fluid : public mesh {
@@ -384,6 +251,12 @@ namespace octet {
         mesh::set_vertices<my_vertex>(vertices);
       }
     };
+    class mesh_blocker : public mesh {
+    public:
+      mesh_blocker(vec3 pos, vec3 size):mesh(){
+        set_aabb(aabb(pos, size));
+      }
+    };
 
     ref<mesh_fluid> the_mesh;
   public:
@@ -396,16 +269,24 @@ namespace octet {
       app_scene =  new visual_scene();
       app_scene->create_default_camera_and_lights();
 
-      material *red = new material(vec4(1, 0, 0, 1), new param_shader("shaders/simple_color.vs", "shaders/simple_color.fs"));
+      material *green = new material(vec4(1, 0, 0, 1), new param_shader("shaders/simple_color.vs", "shaders/simple_color.fs"));
       the_mesh = new mesh_fluid(aabb(vec3(0), vec3(15)), ivec3(100, 100, 0));
       scene_node *node = new scene_node();
       app_scene->add_child(node);
-      app_scene->add_mesh_instance(new mesh_instance(node, the_mesh, red));
+      //app_scene->add_mesh_instance(new mesh_instance(node, the_mesh, green));
+
+      image *img = new image ("assets/projects/my_chamber/box.gif");
+      material *box_mat= new material (img);
+      ref<mesh_blocker> box = new mesh_blocker (vec3(1), vec3(1));
+      node = new scene_node ();
+      app_scene->add_child (node);
+      app_scene->add_mesh_instance (new mesh_instance (node, box, box_mat));
     }
 
     /// this is called to draw the world
     void draw_world(int x, int y, int w, int h) {
       int vx = 0, vy = 0;
+      //W: why is below done here, not inside one of them?
       get_viewport_size(vx, vy);
       app_scene->begin_render(vx, vy, vec4(0, 0, 0, 1));
 
