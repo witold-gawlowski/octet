@@ -11,16 +11,19 @@ namespace octet {
         vec3p pos;
         vec3p color;
       };
-      class fluid_blocker
+
+      struct fluid_blocker
       {
         vec3p pos;
         vec3p half_size;
       public:
+        fluid_blocker(){}
         fluid_blocker(vec3p pos, vec3p hs) : pos(pos), half_size(hs) {}
-        fluid_blocker(sprite s) :pos(s.get_modelToWorld().colw().xyz()), half_size(s.get_size()) {};
+        fluid_blocker(sprite s) : pos(s.get_modelToWorld().colw().xyz()), half_size(s.get_size()) {};
       };
 
       dynarray<my_vertex> vertices;
+      dynarray<fluid_blocker> blockers;
 
       std::vector<float> prev_density;
       std::vector<float> prev_vx;
@@ -34,6 +37,14 @@ namespace octet {
 
       ivec3 dim;
     public:
+      void load_blockers(fluid_blocker * first, int count){
+        blockers.reserve(count);
+        for(int i=0; i<count; ++i){
+          blockers.push_back(*first);
+          first++;
+        }
+      }
+
       mesh_fluid(aabb_in bb, ivec3_in dim) : mesh(), dim(dim) {
         mesh::set_aabb(bb);
 
@@ -239,7 +250,7 @@ namespace octet {
 	      velocity_step( N, u, v, u_prev, v_prev, visc, dt );
 	      density_step( N, dens, dens_prev, u, v, diff, dt );
         long long t1 = __rdtsc();
-        printf("%lld clocks\n", t1-t0);
+        //printf("%lld clocks\n", t1-t0);
 
         //printf("dtot=%f\n", std::accumulate(density.cbegin(), density.cend(), 0.0f));
 
@@ -281,11 +292,14 @@ namespace octet {
       app_scene->create_default_camera_and_lights();
 
       cameraToWorld.loadIdentity();
-      cameraToWorld.translate(vec3(0, 0, 3));
+      cameraToWorld.translate(vec3(0, 0, 0));
       texture_shader_.init();
+      scene_node *camera = app_scene->get_camera_instance(0)->get_node();
+      //camera->translate(vec3(0, 0, -15));
+      printf("%f %f %f\n", camera->get_position().x(), camera->get_position().y(), camera->get_position().z());
 
       material *red = new material(vec4(1, 0, 0, 1), new param_shader("shaders/simple_color.vs", "shaders/simple_color.fs"));
-      the_mesh = new mesh_fluid(aabb(vec3(0), vec3(15)), ivec3(100, 100, 0));
+      the_mesh = new mesh_fluid(aabb(vec3(0), vec3(10)), ivec3(100, 100, 0));
       scene_node *node = new scene_node();
       app_scene->add_child(node);
       app_scene->add_mesh_instance(new mesh_instance(node, the_mesh, red));
@@ -296,7 +310,7 @@ namespace octet {
 //W: why is ifdef not working?
 #ifdef DEBUG
       char buff[200];
-      sprites[hero_sprite].translate(1, -2);
+      sprites[hero_sprite].translate(0, 0);
       sprites[hero_sprite].get_modelToWorld().toString(buff, 200);
       printf("%s", buff);
 #endif

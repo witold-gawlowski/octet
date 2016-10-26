@@ -253,7 +253,7 @@ namespace octet {
         for (int i = 0; i <= dim.x(); ++i) {
           for (int j = 0; j <= dim.y(); ++j) {
             my_vertex v;
-            v.pos = vec3p(i * sx + cx, j * sy + cy, 0);
+            v.pos = vec3p(i * sx + cx, j * sy + cy, 10);
             v.color = vec3p(std::max(0.0f, std::min(density[i+j*stride], 1.0f) ), 0, 0);
             vertices[d++] = v;
           }
@@ -273,9 +273,13 @@ namespace octet {
     void app_init() {
       app_scene =  new visual_scene();
       app_scene->create_default_camera_and_lights();
+      //app_scene->get_camera_instance(0)->get_node()->translate(vec3(0, 0, 5));
+      scene_node *camera = app_scene->get_camera_instance(0)->get_node();
+      camera->translate(vec3(0, 0, -15));
+      printf("%f %f %f\n", camera->get_position().x(), camera->get_position().y(), camera->get_position().z());
 
       material *red = new material(vec4(1, 0, 0, 1), new param_shader("shaders/simple_color.vs", "shaders/simple_color.fs"));
-      the_mesh = new mesh_fluid(aabb(vec3(0), vec3(10)), ivec3(100, 100, 0));
+      the_mesh = new mesh_fluid(aabb(vec3(0, 0, 0), vec3(10)), ivec3(100, 100, 0));
       scene_node *node = new scene_node();
       app_scene->add_child(node);
       app_scene->add_mesh_instance(new mesh_instance(node, the_mesh, red));

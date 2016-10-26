@@ -20,7 +20,7 @@ namespace octet { namespace containers {
   ///     printf("%d\n", my_array[1]);
   ///
   /// Note: try to avoid making arrays of class types.
-  ///
+  ///W: Why? What makes structs better?
   ///     dynarray<int> ints;          // ok. int is well-behaved.
   ///     dynarray<mesh> meshes;       // bad! mesh contains other arrays.
   ///     dynarray<ref<mesh> > meshes; // ok. managed pointers to meshes.
