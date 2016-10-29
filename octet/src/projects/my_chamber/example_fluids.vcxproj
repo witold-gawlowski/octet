@@ -218,6 +218,7 @@
     <ClInclude Include="..\..\shaders\texture_shader.h" />
     <ClInclude Include="mesh_sprite.h" />
     <ClInclude Include="my_chamber.h" />
+    <ClInclude Include="quad.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\resources\mesh_builder.inl" />

@@ -56,6 +56,7 @@ namespace octet {
     OCTET_HUNGARIANS(ray)
     OCTET_HUNGARIANS(random)
     OCTET_HUNGARIANS(zcylinder)
+    OCTET_HUNGARIANS(quad)
   }
 
   using namespace math;
@@ -86,5 +87,6 @@ namespace octet {
 #include "polygon.h"
 #include "zcylinder.h"
 #include "voxel_grid.h"
+#include "../projects/my_chamber/quad.h"
 
 #endif

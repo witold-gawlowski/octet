@@ -73,8 +73,12 @@ namespace octet { namespace math {
         this->m = rhs.m;
       }
     #endif
-
+    
     vec3(const ivec3 &rhs);
+
+    vec3(vec2 v){
+      vec3 (v[0], v[1], 0);
+    }
 
     // index accessor [0] [1] ...
     float &operator[](int i) { return v[i]; }

@@ -2,26 +2,28 @@ namespace octet {
   namespace scene {
     class mesh_sprite : public mesh {
       mat4t transform;
-
-      void init (aabb_in size, mat4t_in transform = mat4t ()) {
-        this->transform = transform;
-        //todo: remove normals
-        set_default_attributes (); 
-        set_aabb (size);
-        update ();
-      }
+      quad _quad;
 
     public:
       RESOURCE_META (mesh_sprite)
         mesh_sprite () {}
 
-      //todo: change vec3 to vec2
-      mesh_sprite (vec3_in size, mat4t_in transform = mat4t ()) {
-        init (aabb (vec3 (0, 0, 0), size), transform);
-      }
-
-      void set_size (vec3_in size, mat4t_in transform = mat4t ()) {
-        init (aabb (vec3 (0, 0, 0), size), transform);
+      /*  todo: override: 
+      *   virtual btCollisionShape *get_bullet_shape() - mesh member   
+      */ 
+    
+      mesh_sprite (vec3 pos, vec2 size, mat4t transform) {
+        //todo: remove normals
+        set_default_attributes ();
+        this->transform = transform;
+        _quad = quad (pos, size / 2);
+        vec3 corners[4] = {
+          vec3(pos+size/2),
+          vec3(pos-size/2),
+          vec3(pos+size.rot90()/2),
+          vec3(pos-size.rot90()/2)
+        };
+        set_aabb (aabb (corners, corners+3));
         update ();
       }
 
@@ -41,7 +43,7 @@ namespace octet {
       }
 
 /*
-*     I should add add this later when preparing game physics. 
+*     todo: add add this later when preparing game physics. 
 *
 #ifdef OCTET_BULLET
       /// Get a bullet shape object for this mesh

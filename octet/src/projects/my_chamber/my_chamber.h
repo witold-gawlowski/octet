@@ -260,10 +260,10 @@ namespace octet {
 
       image *img = new image ("assets/projects/my_chamber/box.gif");
       material *box_mat= new material (img);
-      ref<mesh_sprite> box = new mesh_sprite(vec3 (5, 5, 5), sprite_transform);
+      ref<mesh_sprite> box = new mesh_sprite(vec3 (5, 5, 5), vec2(2, 2), sprite_transform);
       node = new scene_node ();
       app_scene->add_child (node);
-      app_scene->add_mesh_instance (new mesh_instance (node, box, box_mat));
+      app_scene->add_mesh_instance (new mesh_instance (node, box, box_mat));  
     }
 
     void draw_world(int x, int y, int w, int h) {

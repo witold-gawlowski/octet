@@ -48,6 +48,13 @@ namespace octet { namespace math {
     // index accessor [0] [1] ...
     float &operator[](int i) { return v[i]; }
 
+    // rotates vector 90 degrees
+    vec2 rot90 () {
+      vec2 result = *this;
+      result[0] *= -1;
+      return result;
+    }
+
     // constant index accessor
     const float &operator[](int i) const {
       return v[i];
