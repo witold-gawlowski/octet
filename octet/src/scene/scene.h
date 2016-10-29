@@ -34,6 +34,7 @@
 #include "../scene/mesh_sphere.h"
 #include "../scene/mesh_particle_system.h"
 #include "../scene/mesh_terrain.h"
+#include "../projects/my_chamber/mesh_sprite.h"
 #ifdef OCTET_VOXEL_TEST
   #include "../scene/mesh_voxel_subcube.h"
   #include "../scene/mesh_voxels.h"

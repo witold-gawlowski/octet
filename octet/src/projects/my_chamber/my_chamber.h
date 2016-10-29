@@ -10,15 +10,12 @@ namespace octet {
       };
 
       dynarray<my_vertex> vertices;
-
       std::vector<float> prev_density;
       std::vector<float> prev_vx;
       std::vector<float> prev_vy;
-
       std::vector<float> density;
       std::vector<float> vx;
       std::vector<float> vy;
-
       ivec3 dim;
     public:
       mesh_fluid(aabb_in bb, ivec3_in dim) : mesh(), dim(dim) {
@@ -53,8 +50,6 @@ namespace octet {
         add_attribute(attribute_color, 3, GL_FLOAT, 12);
       }
 
-      /// clamp edges to same (or negative) value of inner pixels
-      /// to act as a barrier
       void set_boundary( int N, int b, float * x ) {
         auto IX = [=](int i, int j) { return i +(N+2)*j; };
 
@@ -72,10 +67,6 @@ namespace octet {
 	      x[IX(N+1,N+1)] = 0.5f*(x[IX(N,N+1)]+x[IX(N+1,N)]);
       }
 
-      /// solve diffusion equations (propagation into adjacent cells)
-      /// by repeated aplication of a weighted average.
-      /// Use a fixed number of iterations. 
-      /// at the end x should not change (you should test this yourself)
       void gauss_siedel( int N, int b, float * x, float * x0, float a, float c ) {
         auto IX = [=](int i, int j) { return i +(N+2)*j; };
 
@@ -89,13 +80,11 @@ namespace octet {
 	      }
       }
 
-      /// calculate diffision by approximating with a weighted average
       void diffusion( int N, int b, float * x, float * x0, float diff, float dt ) {
 	      float a = dt * diff * (N * N);
 	      gauss_siedel( N, b, x, x0, a, 1+4*a );
       }
 
-      /// carry a quantity (velocity or density) from one cell to another.
       void advection_step( int N, int b, float * d, float * d0, float * u, float * v, float dt ) {
         auto IX = [=](int i, int j) { return i +(N+2)*j; };
 
@@ -127,8 +116,6 @@ namespace octet {
 	      set_boundary( N, b, d );
       }
 
-      // stablisation step. adjust the velocity to prevent increase in energy
-      // in the system.
       void project( int N, float * u, float * v, float * p, float * div ) {
         auto IX = [=](int i, int j) { return i +(N+2)*j; };
 
@@ -164,8 +151,6 @@ namespace octet {
         set_boundary( N, 2, v );
       }
 
-      /// Given a velocity field, carry a value around the simulation
-      /// and diffuse the value.
       void density_step( int N, float * x, float * x0, float * u, float * v, float diff, float dt ) {
         // apply diffusion to density. If there is no velocity, the value will still spread.
 	      std::swap( x0, x );
@@ -176,7 +161,6 @@ namespace octet {
         advection_step( N, 0, x, x0, u, v, dt );
       }
 
-      /// Compute the new velocity field.
       void velocity_step( int N, float * u, float * v, float * u0, float * v0, float visc, float dt ) {
         // diffuse into neighouring cells
 	      std::swap( u0, u );
@@ -251,51 +235,46 @@ namespace octet {
         mesh::set_vertices<my_vertex>(vertices);
       }
     };
-    class mesh_blocker : public mesh {
-    public:
-      mesh_blocker(vec3 pos, vec3 size):mesh(){
-        set_aabb(aabb(pos, size));
-      }
-    };
 
     ref<mesh_fluid> the_mesh;
   public:
-    /// this is called when we construct the class before everything is initialised.
     my_chamber(int argc, char **argv) : app(argc, argv) {
     }
 
-    /// this is called once OpenGL is initialized
     void app_init() {
+      //init scene
       app_scene =  new visual_scene();
       app_scene->create_default_camera_and_lights();
-
+      
+      //init fluid_mesh
       material *green = new material(vec4(1, 0, 0, 1), new param_shader("shaders/simple_color.vs", "shaders/simple_color.fs"));
       the_mesh = new mesh_fluid(aabb(vec3(0), vec3(15)), ivec3(100, 100, 0));
       scene_node *node = new scene_node();
       app_scene->add_child(node);
-      //app_scene->add_mesh_instance(new mesh_instance(node, the_mesh, green));
+      app_scene->add_mesh_instance(new mesh_instance(node, the_mesh, green));
+
+      //init box_mesh
+      mat4t sprite_transform;
+      sprite_transform.loadIdentity ();
+      sprite_transform.translate (vec3 (0, 0, 6));
 
       image *img = new image ("assets/projects/my_chamber/box.gif");
       material *box_mat= new material (img);
-      ref<mesh_blocker> box = new mesh_blocker (vec3(1), vec3(1));
+      ref<mesh_sprite> box = new mesh_sprite(vec3 (5, 5, 5), sprite_transform);
       node = new scene_node ();
       app_scene->add_child (node);
       app_scene->add_mesh_instance (new mesh_instance (node, box, box_mat));
     }
 
-    /// this is called to draw the world
     void draw_world(int x, int y, int w, int h) {
       int vx = 0, vy = 0;
-      //W: why is below done here, not inside one of them?
       get_viewport_size(vx, vy);
       app_scene->begin_render(vx, vy, vec4(0, 0, 0, 1));
 
       the_mesh->update(get_frame_number());
 
-      // update matrices. assume 30 fps.
       app_scene->update(1.0f/30);
 
-      // draw the scene
       app_scene->render((float)vx / vy);
     }
   };
