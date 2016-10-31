@@ -13,24 +13,29 @@ namespace octet {
       */ 
     
       mesh_sprite (vec3 pos, vec2 size, mat4t transform) {
-        //todo: remove normals
         set_default_attributes ();
         this->transform = transform;
         _quad = quad (pos, size / 2);
         vec3 corners[4] = {
-          vec3(pos+size/2),
-          vec3(pos-size/2),
-          vec3(pos+size.rot90()/2),
-          vec3(pos-size.rot90()/2)
+          vec3(pos + size / 2),
+          vec3(pos - size / 2),
+          vec3(pos + size.rot90() / 2),
+          vec3(pos - size.rot90() / 2)
         };
         set_aabb (aabb (corners, corners+3));
+        aabb aabb_ = get_aabb ();
+        //printf ("sprite aabb: %f, %f\n", aabb_.get_center(), aabb_.get_half_extent());
+        //std::cout << "one of them: " << vec3(size) << std::endl;
+        //std::cout << "corners" << std::endl << corners[0] << std::endl << corners[1] << std::endl << corners[2] <<
+        //std::endl << corners[3] << std::endl;
+        //set_aabb (aabb(pos, vec3(size.x())));
         update ();
       }
 
       /// Generate mesh from parameters.
       virtual void update () {
         aabb aabb_ = get_aabb ();
-        mesh::set_shape<math::aabb, mesh::vertex> (aabb_, transform, 1);
+        mesh::set_shape<math::quad, mesh::vertex> (_quad, transform, 1);
         //dump(log("zzz\n"));
       }
 
