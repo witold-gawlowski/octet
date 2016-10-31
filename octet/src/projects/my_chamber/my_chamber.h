@@ -8,7 +8,7 @@ namespace octet {
         vec3p pos;
         vec3p color;
       };
-
+      dynarray<ref<mesh_sprite>> boxesp;
       dynarray<my_vertex> vertices;
       std::vector<float> prev_density;
       std::vector<float> prev_vx;
@@ -50,21 +50,44 @@ namespace octet {
         add_attribute(attribute_color, 3, GL_FLOAT, 12);
       }
 
-      void set_boundary( int N, int b, float * x ) {
-        auto IX = [=](int i, int j) { return i +(N+2)*j; };
+      void add_box(ref<mesh_sprite> b){
+        boxesp.push_back (b);
+      }
+
+      void set_my_boundary(int N, int b, float * x, vec2 pos, int size){
+        auto IX = [=] (int i, int j) { return i + (N + 2)*j; };
+        for(int i=0; i<size; i++){
+          x[IX (pos.x()-1, pos.y()+i)] = b==1 ? -x[IX (pos.x()-2,  pos.y()+i)] : x[IX (pos.x () - 2, pos.y () + i)];
+          x[IX (pos.x()+size, pos.y()+i)] = b==1 ? -x[IX (pos.x()+size+1, pos.y()+i)] : x[IX (pos.x () + size + 1, pos.y () + i)];
+          x[IX (pos.x () + i, pos.y ()-1)] = b == 2 ? -x[IX (pos.x () + i, pos.y ()-2)] : x[IX (pos.x () + i, pos.y ()-2)];
+          x[IX (pos.x () + i, pos.y () + size)] = b == 2 ? -x[IX (pos.x () + i, pos.y () + size +1)] : x[IX (pos.x () + i, pos.y () + size +1)];
+        }
+        x[IX (pos.x () - 1, pos.y ()) - 1] = 0.5f*(x[IX (pos.x (), pos.y () - 1)] + x[IX (pos.x () - 1, pos.y ())]);
+        x[IX (pos.x () + size, pos.y ()) - 1] = 0.5f*(x[IX (pos.x ()+size, pos.y () - 2)] + x[IX (pos.x ()+size + 1, pos.y ()-1)]);
+        x[IX (pos.x () +size, pos.y ()) + size] = 0.5f*(x[IX (pos.x ()+size+1, pos.y () +size)] + x[IX (pos.x () +size, pos.y ()+size+1)]);
+        x[IX (pos.x ()-1, pos.y () +size)] = 0.5f*(x[IX (pos.x ()-2, pos.y ()+size)] + x[IX (pos.x () - 1, pos.y ()+size+1)]);
+      }
+
+      void set_chamber_walls(int N, int b, float * x)
+      {
+        auto IX = [=] (int i, int j) { return i + (N + 2)*j; };
 
         //W: i need to keep distance from boxes so that moving them does not consume fluid
-	      for ( int i=1 ; i<=N ; i++ ) {
-		      x[IX(0  ,i)] = b==1 ? -x[IX(1,i)] : x[IX(1,i)];
-		      x[IX(N+1,i)] = b==1 ? -x[IX(N,i)] : x[IX(N,i)];
-		      x[IX(i,0  )] = b==2 ? -x[IX(i,1)] : x[IX(i,1)];
-		      x[IX(i,N+1)] = b==2 ? -x[IX(i,N)] : x[IX(i,N)];
-	      }
+        for ( int i = 1; i <= N; i++ ) {
+          x[IX (0, i)] = b == 1 ? -x[IX (1, i)] : x[IX (1, i)];
+          x[IX (N + 1, i)] = b == 1 ? -x[IX (N, i)] : x[IX (N, i)];
+          x[IX (i, 0)] = b == 2 ? -x[IX (i, 1)] : x[IX (i, 1)];
+          x[IX (i, N + 1)] = b == 2 ? -x[IX (i, N)] : x[IX (i, N)];
+        }
 
-	      x[IX(0  ,0  )] = 0.5f*(x[IX(1,0  )]+x[IX(0  ,1)]);
-	      x[IX(0  ,N+1)] = 0.5f*(x[IX(1,N+1)]+x[IX(0  ,N)]);
-	      x[IX(N+1,0  )] = 0.5f*(x[IX(N,0  )]+x[IX(N+1,1)]);
-	      x[IX(N+1,N+1)] = 0.5f*(x[IX(N,N+1)]+x[IX(N+1,N)]);
+        x[IX (0, 0)] = 0.5f*(x[IX (1, 0)] + x[IX (0, 1)]);
+        x[IX (0, N + 1)] = 0.5f*(x[IX (1, N + 1)] + x[IX (0, N)]);
+        x[IX (N + 1, 0)] = 0.5f*(x[IX (N, 0)] + x[IX (N + 1, 1)]);
+        x[IX (N + 1, N + 1)] = 0.5f*(x[IX (N, N + 1)] + x[IX (N + 1, N)]);
+      }
+      void set_boundary( int N, int b, float * x ) {
+        set_chamber_walls (N, b, x);
+        set_my_boundary (N, b, x, vec2(70, 70), 20);
       }
 
       void gauss_siedel( int N, int b, float * x, float * x0, float a, float c ) {
@@ -260,11 +283,12 @@ namespace octet {
 
       image *img = new image ("assets/projects/my_chamber/box.gif");
       material *box_mat= new material (img);
-      ref<mesh_sprite> box = new mesh_sprite(vec3 (0, 0, 0), vec2(2, 2), sprite_transform);
+      ref<mesh_sprite> box = new mesh_sprite(vec3 (4, 0, 0), vec2(2, 2), sprite_transform);
       //ref<mesh_box> box = new mesh_box(vec3 (2, 2, 2), sprite_transform);
       node = new scene_node ();
       app_scene->add_child (node);
       app_scene->add_mesh_instance (new mesh_instance (node, box, box_mat));  
+      the_mesh->add_box (box);
     }
 
     void draw_world(int x, int y, int w, int h) {
