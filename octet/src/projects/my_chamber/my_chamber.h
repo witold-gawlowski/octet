@@ -62,6 +62,87 @@ namespace octet {
         add_attribute (attribute_color, 3, GL_FLOAT, 12);
       }
 
+      bool movable(int N, const vec3 &box, int dx, int dy){
+        auto IX = [=] (int i, int j) { return i + (N + 2)*j; };
+        assert (!dx || !dy);
+        if ( dx>0 ) {
+          for ( int i = box.y (); i<box.y () + box.z (); ++i ) {
+            if ( mask[IX (box.x ()+box.z(), i)] ) {
+              return false;
+            }
+          }
+          return true;
+        }else if(dx<0){
+          for ( int i = box.y (); i<box.y () + box.z (); ++i ) {
+            if ( mask[IX (box.x ()-1, i)] ) {
+              return false;
+            }
+          }
+          return true;
+        } else if ( dy>0 ) {
+          for ( int i = box.x (); i<box.x () + box.z (); ++i ) {
+            if ( mask[IX (i, box.y()+box.z())] ) {
+              return false;
+            }
+          }
+          return true;
+        } else if ( dy<0 ) {
+          for ( int i = box.x (); i<box.x () + box.z (); ++i ) {
+            if ( mask[IX (i, box.y()-1)] ) {
+              return false;
+            }
+          }
+          return true;
+        }
+      }
+
+      void move_box(int N, int index, int dx, int dy){
+        //todo: repair infinite amplification on the edges parallell to the movement
+        vec3 &box = boxes[index];
+        assert (!dx || !dy);
+        auto IX = [=] (int i, int j) { return i + (N + 2)*j; };
+        if ( !movable (N, box, dx, dy) )
+          return;
+        for(int i=box.x(); i<box.x()+box.z(); ++i){
+          for(int j=box.y(); j<box.y()+box.z(); ++j){
+            if( mask[IX (i+dx, j+dy)]!=1){
+              density[IX (i + 2*dx, j + 2*dy)] += density[IX (i + dx, j + dy)]/1.5f;
+            }
+            density[IX (i, j)] = 0;
+            mask[IX (i, j)] = 0;
+          }
+        }
+        box[0] += dx;
+        box[1] += dy;
+        for ( int i = box.x (); i < box.x () + box.z (); ++i ) {
+          for ( int j = box.y (); j < box.y () + box.z (); ++j ){
+            mask[IX (i, j)] = 1;
+          }
+        }
+        for ( int i = box.x (); i<box.x () + box.z (); ++i ) {
+          for ( int j = box.y (); j<box.y () + box.z (); ++j ) {            
+            if ( mask[IX (i + dx, j + dy)] != 1 ) {
+              if ( dx ) {
+                
+                vx[IX (i + dx, j + dy)] += 3*dx;
+              } else {
+                vy[IX (i + dx, j + dy)] += 3 * dy;
+              }
+            }else if( mask[IX (i - dx, j - dy)] != 1 ){
+              density[IX (i - dx, j - dy)] = 0;
+              if ( dx ) {
+                std::cout << "ads" << std::endl;
+                vx[IX (i - dx, j - dy)] += 2 * dx;
+                //vx[IX (i - 2*dx, j - 2*dy)] += 1.5 * dx;
+              } else {
+                vy[IX (i - dx, j - dy)] += 2 * dy;
+                //vy[IX (i - 2*dx, j - 2*dy)] += 1.5 * dy;
+              }
+            }
+          }
+        }
+      }
+
       void add_box (int N, int x, int y, int size) {
         auto IX = [=] (int i, int j) { return i + (N + 2)*j; };
         for ( int i = x; i<x + size; ++i )
@@ -326,16 +407,16 @@ namespace octet {
       node = new scene_node ();
       app_scene->add_child (node);
       //app_scene->add_mesh_instance (new mesh_instance (node, box, box_mat));  
-      the_mesh->add_box (99, 20 + 3, 70, 10);
-      the_mesh->add_box (99, 34 + 3, 70, 10);
-      the_mesh->add_box (99, 48 + 3, 70, 10);
-      the_mesh->add_box (99, 62 + 3, 70, 10);
-      the_mesh->add_box (99, 76 + 3, 70, 10);
-      //the_mesh->add_box (box2);
-      //the_mesh->add_box (box3);
+      //todo: remove this dumb N argument
+      the_mesh->add_box (99, 20, 70, 10);
+      the_mesh->add_box (99, 30, 70, 10);
+      the_mesh->add_box (99, 40, 70, 10);
+      the_mesh->add_box (99, 50, 70, 10);
+      the_mesh->add_box (99, 60, 70, 10);
     }
 
     void draw_world (int x, int y, int w, int h) {
+      //todo: check what happens when you add boundaries to the mask
       int vx = 0, vy = 0;
       get_viewport_size (vx, vy);
       app_scene->begin_render (vx, vy, vec4 (0, 0, 0, 1));
@@ -345,6 +426,19 @@ namespace octet {
       app_scene->update (1.0f / 30);
 
       app_scene->render ((float) vx / vy);
+      
+      if(is_key_down(key_up)  ){
+        the_mesh->move_box (99, 0, 0, 1);
+      }
+      if ( is_key_down (key_down) ) {
+        the_mesh->move_box (99, 0, 0, -1);
+      }
+      if ( is_key_down (key_left) ) {
+        the_mesh->move_box (99, 0, -1, 0);
+      }
+      if ( is_key_down (key_right) ) {
+        the_mesh->move_box (99, 0, +1, 0);
+      }
     }
   };
 }
