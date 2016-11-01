@@ -72,7 +72,7 @@ namespace octet {
       }
 
 
-      void set_my_boundary (int N, int b, float * x, const vec2& pos, const int& size) {
+      void set_my_boundary2 (int N, int b, float * x, vec2 pos, int size) {
         auto IX = [=] (int i, int j) { return i + (N + 2)*j; };
         for ( int i = 0; i<size; i++ ) {
           x[IX (pos.x () - 1, pos.y () + i)] = b == 1 ? -x[IX (pos.x () - 2, pos.y () + i)] : x[IX (pos.x () - 2, pos.y () + i)];
@@ -84,6 +84,20 @@ namespace octet {
         x[IX (pos.x () + size, pos.y () - 1)] = 0.5f*(x[IX (pos.x () + size, pos.y () - 2)] + x[IX (pos.x () + size + 1, pos.y () - 1)]);
         x[IX (pos.x () + size, pos.y () + size)] = 0.5f*(x[IX (pos.x () + size + 1, pos.y () + size)] + x[IX (pos.x () + size, pos.y () + size + 1)]);
         x[IX (pos.x () - 1, pos.y () + size)] = 0.5f*(x[IX (pos.x () - 2, pos.y () + size)] + x[IX (pos.x () - 1, pos.y () + size + 1)]);
+      }
+
+      void set_my_boundary (int N, int b, float * x, vec2 pos, int size) {
+        auto IX = [=] (int i, int j) { return i + (N + 2)*j; };
+        for ( int i = 1; i<size-1; i++ ) {
+          x[IX (pos.x (), pos.y () + i)] = b == 1 ? -x[IX (pos.x () - 1, pos.y () + i)] : x[IX (pos.x () - 1, pos.y () + i)];
+          x[IX (pos.x () + size-1, pos.y () + i)] = b == 1 ? -x[IX (pos.x () + size, pos.y () + i)] : x[IX (pos.x () + size , pos.y () + i)];
+          x[IX (pos.x () + i, pos.y ())] = b == 2 ? -x[IX (pos.x () + i, pos.y () - 1)] : x[IX (pos.x () + i, pos.y () - 1)];
+          x[IX (pos.x () + i, pos.y () + size-1)] = b == 2 ? -x[IX (pos.x () + i, pos.y () + size )] : x[IX (pos.x () + i, pos.y () + size)];
+        }
+        x[IX (pos.x (), pos.y ())] = 0.5f*(x[IX (pos.x (), pos.y ()+1)] + x[IX (pos.x () + 1, pos.y ())]);
+        x[IX (pos.x () + size-1, pos.y ())] = 0.5f*(x[IX (pos.x () + size-2, pos.y ())] + x[IX (pos.x () + size -1, pos.y () + 1)]);
+        x[IX (pos.x () + size-1, pos.y () + size-1)] = 0.5f*(x[IX (pos.x () + size -2, pos.y () + size-1)] + x[IX (pos.x () + size-1, pos.y () + size - 2)]);
+        x[IX (pos.x (), pos.y () + size - 1)] = 0.5f*(x[IX (pos.x (), pos.y () + size-2)] + x[IX (pos.x () + 1, pos.y () + size -1)]);
       }
 
       void set_chamber_walls (int N, int b, float * x) {
