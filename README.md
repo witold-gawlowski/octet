@@ -1,25 +1,13 @@
-# octet
+#my_chamber
 
-Octet is a framework for teaching OpenGL and the rudiments of game programming such
-as Geometry construction, Shaders, Matrices, Rigid body Physics and Fluid dynamics.
+###Intro to game programming Project I
 
-It has a number of examples in the src/examples directory.
+The idea for a project was to use Octet's implementation of fluid dynamics to create simple 2D game:
+Key points:
+  * player moving around a room with movable boxes (by pushing), 
+  * boxes block the gas flow
+  * aim of the game: to stop the gas from spreading by enclosing it withing area that is bounded by room's walls and boxes. Player is successfull upon "defenging" given percentile of area of whole room. 
 
-To use with visual studio, fork this repository into your own account and then
-"Clone Into Desktop" using the GitHub tool and open one of the .sln files in src/examples.
-
-There is a python script for generating your own projects from a template.
-
-From the octet directory run:
-
-packaging\make_example.py my_example
-
-To create your own project in src/examples
-
-Examples should also work with Xcode, although testing is a lot less thorough. If it does not work, send
-me a pull request with fixes, please...
-
-Octet is a bit unusual in that it does not use external libraries such as libjpeg or zlib.
-These are implemented in source form in the framework so that you can understand the code.
-The source of most academic libraries is almost unreadble, so we aim to help your understanding
-of coding codecs such as GIF, JPEG, ZIP and so on.
+Initially I tried to implement to add boxes as sprite class instances adopted from another demo: *example_invaderers*. It turned out that this was not possible as sprite drawing pipline was not meant to use along meshes. To deal with that I have created 
+  * *quad* - abstract mathematical class representing arbitratily transformed rectangle, located in *math* folder.
+  * *mesh_sprite* class, representing a simple mesh consisting of two triangles forming a rectangle.
