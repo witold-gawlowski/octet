@@ -11,7 +11,15 @@ namespace octet {
       /*  todo: override: 
       *   virtual btCollisionShape *get_bullet_shape() - mesh member   
       */ 
-    
+      
+      vec3 get_position(){
+        return _quad.get_position () * transform;
+      }
+
+      vec2 get_size(){
+        return _quad.get_half_extent () * 2;
+      }
+
       mesh_sprite (vec3 pos, vec2 size, mat4t transform) {
         set_default_attributes ();
         this->transform = transform;
