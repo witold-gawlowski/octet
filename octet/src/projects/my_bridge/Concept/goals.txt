@@ -6,3 +6,4 @@
 * player starts in the cave and gets his voice louder as he enters the ledge
 * callision callback triggering character breathing when stepping over the bridge
 * blacout screen when falling
+* make bridge longer, player smaller, also more bridge elements
