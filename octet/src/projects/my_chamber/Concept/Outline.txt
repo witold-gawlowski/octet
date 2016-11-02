@@ -9,3 +9,4 @@
 * boxes have white outlines
 * boxes hide the boundary texels
 * movie with subsequent stages of work (thx to commits)
+* years of wars in the bg ;)

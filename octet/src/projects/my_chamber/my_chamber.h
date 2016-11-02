@@ -62,41 +62,29 @@ namespace octet {
         add_attribute (attribute_color, 3, GL_FLOAT, 12);
       }
 
-      //checks if space is free on the opposite side of the box 
-      bool movable(int N, const vec3 &box, int dx, int dy){
+     
+      //checks if space is free on the opposite side of the box
+      //condensed from previous commit function
+      bool movable (int N, const vec3 &box, int dx, int dy) {
         auto IX = [=] (int i, int j) { return i + (N + 2)*j; };
         assert (!dx || !dy);
+        int coord, swap, beg;
         if ( dx>0 ) {
-          for ( int i = box.y (); i<box.y () + box.z (); ++i ) {
-            if ( mask[IX (box.x ()+box.z(), i)] ) {
-              return false;
-            }
-          }
-          return true;
-        }else if(dx<0){
-          for ( int i = box.y (); i<box.y () + box.z (); ++i ) {
-            if ( mask[IX (box.x ()-1, i)] ) {
-              return false;
-            }
-          }
-          return true;
+          beg = box.y (), coord = box.x () + box.z (), swap = 1;
+        } else if ( dx<0 ) {
+          beg = box.y (), coord = box.x () -1, swap = 1;
         } else if ( dy>0 ) {
-          for ( int i = box.x (); i<box.x () + box.z (); ++i ) {
-            if ( mask[IX (i, box.y()+box.z())] ) {
-              return false;
-            }
-          }
-          return true;
+          beg = box.x (), coord = box.y () + box.z(), swap = 0;
         } else if ( dy<0 ) {
-          for ( int i = box.x (); i<box.x () + box.z (); ++i ) {
-            if ( mask[IX (i, box.y()-1)] ) {
-              return false;
-            }
-          }
-          return true;
+          beg = box.x (), coord = box.y () - 1, swap = 0;
         }
+        for ( int k = beg; k<beg + box.z (); ++k ) {
+          if ( swap ? mask[IX (coord, k)] : mask[IX(k, coord)] ) {
+            return false;
+          }
+        }
+        return true;
       }
-
       //moves the mask and implements movment heuristics for the fluid
       void move_box(int N, int index, int dx, int dy){
         auto IX = [=] (int i, int j) { return i + (N + 2)*j; };
@@ -166,21 +154,6 @@ namespace octet {
             mask[IX (i, j)] = 1;
           }
         boxes.push_back (vec3 (x, y, size));
-      }
-
-
-      void set_my_boundary2 (int N, int b, float * x, vec2 pos, int size) {
-        auto IX = [=] (int i, int j) { return i + (N + 2)*j; };
-        for ( int i = 0; i<size; i++ ) {
-          x[IX (pos.x () - 1, pos.y () + i)] = b == 1 ? -x[IX (pos.x () - 2, pos.y () + i)] : x[IX (pos.x () - 2, pos.y () + i)];
-          x[IX (pos.x () + size, pos.y () + i)] = b == 1 ? -x[IX (pos.x () + size + 1, pos.y () + i)] : x[IX (pos.x () + size + 1, pos.y () + i)];
-          x[IX (pos.x () + i, pos.y () - 1)] = b == 2 ? -x[IX (pos.x () + i, pos.y () - 2)] : x[IX (pos.x () + i, pos.y () - 2)];
-          x[IX (pos.x () + i, pos.y () + size)] = b == 2 ? -x[IX (pos.x () + i, pos.y () + size + 1)] : x[IX (pos.x () + i, pos.y () + size + 1)];
-        }
-        x[IX (pos.x () - 1, pos.y () - 1)] = 0.5f*(x[IX (pos.x (), pos.y () - 1)] + x[IX (pos.x () - 1, pos.y ())]);
-        x[IX (pos.x () + size, pos.y () - 1)] = 0.5f*(x[IX (pos.x () + size, pos.y () - 2)] + x[IX (pos.x () + size + 1, pos.y () - 1)]);
-        x[IX (pos.x () + size, pos.y () + size)] = 0.5f*(x[IX (pos.x () + size + 1, pos.y () + size)] + x[IX (pos.x () + size, pos.y () + size + 1)]);
-        x[IX (pos.x () - 1, pos.y () + size)] = 0.5f*(x[IX (pos.x () - 2, pos.y () + size)] + x[IX (pos.x () - 1, pos.y () + size + 1)]);
       }
 
       void set_my_boundary (int N, int b, float * x, vec2 pos, int size) {
