@@ -21,7 +21,7 @@ namespace octet {
       std::vector<float> vy;
       std::vector<int> mask;
       std::vector<vec3> box_transforms; //(pos_x, pos_y, size)
-      std::vector<ref<mesh_sprite>> box_meshesp; //box_transforms[i] and box_beshes[i] carry i-th box's data
+      std::vector<ref<scene_node>> box_nodes; //box_transforms[i] and box_beshes[i] carry i-th box's data
       ivec3 dim;
       float cx, cy, sx, sy;
 
@@ -97,6 +97,8 @@ namespace octet {
         if ( !movable (N, box, dx, dy) )
           return;
 
+        //move the sprite
+        box_nodes[index]->translate (vec3 (dx*sx, dy*sy,0));
         //go over all box grid positions
         for(int i=box.x(); i<box.x()+box.z(); ++i){
           for(int j=box.y(); j<box.y()+box.z(); ++j){
@@ -149,7 +151,7 @@ namespace octet {
       }
 
       //I am ok with *&, but they will fire me, right? I can't see other elegant solution... Any advice?
-      void add_box (int N, int x, int y, int size, mesh_sprite*& box_sprite) {
+      void add_box (int N, int x, int y, int size, mesh_sprite*& box_sprite, scene_node *node) {
         auto IX = [=] (int i, int j) { return i + (N + 2)*j; };
         for ( int i = x; i<x + size; ++i )
           for ( int j = y; j<y + size; ++j ) {
@@ -163,7 +165,7 @@ namespace octet {
           vec2((size+1)*sx, (size+1)*sy),
           mat4t().loadIdentity().translate(vec3(0, 0, 1))
         );
-        box_meshesp.push_back (box_sprite);
+        box_nodes.push_back (node);
       }
 
       void set_my_boundary (int N, int b, float * x, vec2 pos, int size) {
@@ -400,16 +402,14 @@ namespace octet {
       image *img = new image ("assets/projects/my_chamber/box.gif");
       material *box_mat = new material (img);
     
+      node = new scene_node ();
       mesh_sprite* box;
       //todo: remove this dumb N argument
-      the_mesh->add_box (99, 20, 70, 10, box);
+      the_mesh->add_box (99, 20, 70, 10, box, node);
       //todo: check if all new-generated objects are deleted
-      node = new scene_node ();
+     
       app_scene->add_child (node);
-      std::cout << "debug1" << std::endl;
       app_scene->add_mesh_instance (new mesh_instance (node, box, box_mat));
-      std::cout << "debug1" << std::endl;
-
     }
 
     void draw_world (int x, int y, int w, int h) {
