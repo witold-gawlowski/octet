@@ -90,7 +90,7 @@ namespace octet {
         return true;
       }
       //moves the mask and implements movment heuristics for the fluid
-      void move_box(int N, int index, int dx, int dy){
+      bool move_box(int N, int index, int dx, int dy){
         auto IX = [=] (int i, int j) { return i + (N + 2)*j; };
         vec3 &box = box_transforms[index];
 
@@ -98,7 +98,7 @@ namespace octet {
         assert (!dx || !dy);
 
         if ( !movable (N, box, dx, dy) )
-          return;
+          return false;
 
         //move the sprite
         box_nodes[index]->translate (vec3 (dx*sx, dy*sy,0));
@@ -124,7 +124,7 @@ namespace octet {
         //fill the mask
         for ( int i = box.x (); i < box.x () + box.z (); ++i ) {
           for ( int j = box.y (); j < box.y () + box.z (); ++j ){
-            mask[IX (i, j)] = 1;
+            mask[IX (i, j)] = index+1;
           }
         }
         //go over all box grid positions
@@ -135,6 +135,7 @@ namespace octet {
               //if movement horizontal
               if ( dx ) {
                 //add movement aligned velocity to the forward edge
+                //todo: adjust the magic numbers...
                 vx[IX (i + dx, j + dy)] += 3*dx;
               } else {
                 //...
@@ -151,12 +152,26 @@ namespace octet {
             }
           }
         }
+        return true;
       }
 
       void move_player(int N, int dx, int dy){
+        
         auto IX = [=] (int i, int j) { return i + (N + 2)*j; };
-
-        player_node->translate(vec3(dx*sx, dy*sy, 0));
+        int id = mask[IX (player_position.x () + dx, player_position.y () + dy)];
+        //std::cout <<"grid id: " << player_position.x () + dx <<" "<< player_position.y () + dy << " "<<id << std::endl;
+        if(id==0){
+          player_position[0] += dx;
+          player_position[1] += dy;
+          player_node->translate (vec3 (dx*sx, dy*sy, 0));
+          return;
+        }
+        if ( move_box (N, id - 1, dx, dy) ) {
+          player_position[0] += dx;
+          player_position[1] += dy;
+          player_node->translate (vec3 (dx*sx, dy*sy, 0));
+        }
+        return;
       }
 
       void add_player (int x, int y, mesh_sprite*& sprite_player, scene_node* node){
@@ -172,10 +187,13 @@ namespace octet {
 
       //I am ok with *&, but they will fire me, right? I can't see other elegant solution... Any advice?
       void add_box (int N, int x, int y, int size, mesh_sprite*& box_sprite, scene_node *node) {
+        box_nodes.push_back (node);
         auto IX = [=] (int i, int j) { return i + (N + 2)*j; };
         for ( int i = x; i<x + size; ++i )
           for ( int j = y; j<y + size; ++j ) {
-            mask[IX (i, j)] = 1;
+            //mark the mask with the box's id: index+1
+            mask[IX (i, j)] = box_nodes.size();
+            std::cout << "add_box_log: " << i << " " << j << " " << mask[IX (i, j)] << std::endl;
           }
 
         box_transforms.push_back (vec3 (x, y, size));
@@ -185,7 +203,7 @@ namespace octet {
           vec2((size+1)*sx, (size+1)*sy),
           mat4t().loadIdentity().translate(vec3(0, 0, 1))
         );
-        box_nodes.push_back (node);
+        
       }
 
       void set_my_boundary (int N, int b, float * x, vec2 pos, int size) {
@@ -461,7 +479,8 @@ namespace octet {
 
       app_scene->render ((float) vx / vy);
       
-      if(is_key_down(key_up)  ){
+      
+       if(is_key_down(key_up)  ){
         the_mesh->move_player (99, 0, 1);
       }else if ( is_key_down (key_down) ) {
         the_mesh->move_player (99, 0, -1);
@@ -470,6 +489,17 @@ namespace octet {
       } else if ( is_key_down (key_right) ) {
         the_mesh->move_player (99, +1, 0);
       }
+      /*
+      if ( is_key_down (key_up) ) {
+        the_mesh->move_box(99,0, 0, 1);
+      } else if ( is_key_down (key_down) ) {
+        the_mesh->move_box (99, 0, 0, -1);
+      } else if ( is_key_down (key_left) ) {
+        the_mesh->move_box (99, 0, -1, 0);
+      } else if ( is_key_down (key_right) ) {
+        the_mesh->move_box (99, 0, +1, 0);
+      }
+      */
     }
   };
 }
