@@ -51,7 +51,7 @@ namespace octet { namespace math {
     //
     // Minkovski sum of a point and a box is the same box move by the point.
     // Minkovski sum of a sphere and a box is a larger box with rounded corners and edges.
-    // Minkovski sum of a ray and a box is two boxes with their vertices connected by the ray.
+    // Minkovski sum of a ray and a box is two box_transforms with their vertices connected by the ray.
     //
     // see http://www.codercorner.com/RayAABB.cpp for a similar implementation
 

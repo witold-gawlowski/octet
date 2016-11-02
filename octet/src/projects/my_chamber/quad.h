@@ -32,13 +32,16 @@ namespace octet {
       }
 
       // Get the center of the bounding box
-      const vec3 get_position () const {
-        return position;
-      }
+      vec3 get_position () const { return position; }
 
-      const vec2 get_half_extent () const {
-        return half_extent;
-      }
+      vec2 get_half_extent () const { return half_extent; }
+
+      void set_position (vec3 p) { position = p; }
+
+      void set_half_extent (vec2 s) { half_extent = s; }
+      
+
+
 
       //todo: implement later
       

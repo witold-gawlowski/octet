@@ -27,7 +27,7 @@ namespace octet { namespace scene {
     /// lights available
     dynarray<ref<light_instance> > light_instances;
 
-    /// set this to draw bounding boxes
+    /// set this to draw bounding box_transforms
     bool render_aabbs;
     bool render_debug_lines;
     bool dump_vertices;
@@ -496,7 +496,7 @@ namespace octet { namespace scene {
       return (scene_node*)this;
     }
 
-    /// debugging aid to draw boxes around objects
+    /// debugging aid to draw box_transforms around objects
     void set_render_aabbs(bool value) {
       render_aabbs = value;
     }

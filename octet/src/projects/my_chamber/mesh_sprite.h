@@ -12,13 +12,13 @@ namespace octet {
       *   virtual btCollisionShape *get_bullet_shape() - mesh member   
       */ 
       
-      vec3 get_position(){
-        return _quad.get_position () * transform;
-      }
+      vec3 get_position(){ return _quad.get_position () * transform; }
 
-      vec2 get_size(){
-        return _quad.get_half_extent () * 2;
-      }
+      vec2 get_size () { return _quad.get_half_extent () * 2; }
+
+      vec3 set_position (vec3 p) { _quad.set_position (p); }
+
+      vec2 set_size (vec2 s) { _quad.set_half_extent (s); }
 
       mesh_sprite (vec3 pos, vec2 size, mat4t transform) {
         set_default_attributes ();

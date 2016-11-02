@@ -35,7 +35,7 @@ namespace octet { namespace math {
       }
     }
 
-    // Find the union of two axis aligned bounding boxes
+    // Find the union of two axis aligned bounding box_transforms
     aabb get_union(const aabb &rhs) {
       vec3 min = get_min().min(rhs.get_min());
       vec3 max = get_max().max(rhs.get_max());

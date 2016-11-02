@@ -20,7 +20,8 @@ namespace octet {
       std::vector<float> vx;
       std::vector<float> vy;
       std::vector<int> mask;
-      std::vector<vec3> boxes; //(pos_x, pos_y, size)
+      std::vector<vec3> box_transforms; //(pos_x, pos_y, size)
+      std::vector<ref<mesh_sprite>> box_meshesp; //box_transforms[i] and box_beshes[i] carry i-th box's data
       ivec3 dim;
       float cx, cy, sx, sy;
 
@@ -62,7 +63,7 @@ namespace octet {
         add_attribute (attribute_color, 3, GL_FLOAT, 12);
       }
 
-     
+      //todo: change all vec3s handling integers to ivec3!
       //checks if space is free on the opposite side of the box
       //condensed from previous commit function
       bool movable (int N, const vec3 &box, int dx, int dy) {
@@ -88,7 +89,7 @@ namespace octet {
       //moves the mask and implements movment heuristics for the fluid
       void move_box(int N, int index, int dx, int dy){
         auto IX = [=] (int i, int j) { return i + (N + 2)*j; };
-        vec3 &box = boxes[index];
+        vec3 &box = box_transforms[index];
 
         //check if the movement (dx, dy) is aa
         assert (!dx || !dy);
@@ -147,13 +148,22 @@ namespace octet {
         }
       }
 
-      void add_box (int N, int x, int y, int size) {
+      //I am ok with *&, but they will fire me, right? I can't see other elegant solution... Any advice?
+      void add_box (int N, int x, int y, int size, mesh_sprite*& box_sprite) {
         auto IX = [=] (int i, int j) { return i + (N + 2)*j; };
         for ( int i = x; i<x + size; ++i )
           for ( int j = y; j<y + size; ++j ) {
             mask[IX (i, j)] = 1;
           }
-        boxes.push_back (vec3 (x, y, size));
+
+        box_transforms.push_back (vec3 (x, y, size));
+        box_sprite = new mesh_sprite(
+          //todo: first argument needs probably (size+1)
+          vec3(cx+x*sx+size*sx/2, cy+y*sy+size*sy/2, 0),
+          vec2((size+1)*sx, (size+1)*sy),
+          mat4t().loadIdentity().translate(vec3(0, 0, 1))
+        );
+        box_meshesp.push_back (box_sprite);
       }
 
       void set_my_boundary (int N, int b, float * x, vec2 pos, int size) {
@@ -189,8 +199,8 @@ namespace octet {
       void set_boundary (int N, int b, float * x) {
         set_chamber_walls (N, b, x);
 
-        for ( int i = 0; i < boxes.size (); i++ ) {
-          set_my_boundary (N, b, x, boxes[i].xy (), boxes[i].z ());
+        for ( int i = 0; i < box_transforms.size (); i++ ) {
+          set_my_boundary (N, b, x, box_transforms[i].xy (), box_transforms[i].z ());
         }
 
       }
@@ -370,6 +380,10 @@ namespace octet {
   public:
     my_chamber (int argc, char **argv) : app (argc, argv) {}
 
+    void add_box(){
+      
+    }
+
     void app_init () {
       //init scene
       app_scene = new visual_scene ();
@@ -382,26 +396,20 @@ namespace octet {
       app_scene->add_child (node);
       app_scene->add_mesh_instance (new mesh_instance (node, the_mesh, green));
 
-      //init box_mesh
-      mat4t sprite_transform;
-      sprite_transform.loadIdentity ();
-      sprite_transform.translate (vec3 (0, 0, 6));
-
+      //add boxes, move this to separate function
       image *img = new image ("assets/projects/my_chamber/box.gif");
       material *box_mat = new material (img);
-      ref<mesh_sprite> box = new mesh_sprite (vec3 (4, 4, 0), vec2 (7, 7), sprite_transform);
-      ref<mesh_sprite> box2 = new mesh_sprite (vec3 (4, 2, 0), vec2 (2, 2), sprite_transform);
-      ref<mesh_sprite> box3 = new mesh_sprite (vec3 (4, 4, 0), vec2 (2, 2), sprite_transform);
-      //ref<mesh_box> box = new mesh_box(vec3 (2, 2, 2), sprite_transform);
+    
+      mesh_sprite* box;
+      //todo: remove this dumb N argument
+      the_mesh->add_box (99, 20, 70, 10, box);
+      //todo: check if all new-generated objects are deleted
       node = new scene_node ();
       app_scene->add_child (node);
-      //app_scene->add_mesh_instance (new mesh_instance (node, box, box_mat));  
-      //todo: remove this dumb N argument
-      the_mesh->add_box (99, 20, 70, 10);
-      the_mesh->add_box (99, 30, 70, 10);
-      the_mesh->add_box (99, 40, 70, 10);
-      the_mesh->add_box (99, 50, 70, 10);
-      the_mesh->add_box (99, 60, 70, 10);
+      std::cout << "debug1" << std::endl;
+      app_scene->add_mesh_instance (new mesh_instance (node, box, box_mat));
+      std::cout << "debug1" << std::endl;
+
     }
 
     void draw_world (int x, int y, int w, int h) {
