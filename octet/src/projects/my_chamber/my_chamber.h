@@ -22,7 +22,10 @@ namespace octet {
       std::vector<int> mask;
       std::vector<vec3> box_transforms; //(pos_x, pos_y, size)
       std::vector<ref<scene_node>> box_nodes; //box_transforms[i] and box_beshes[i] carry i-th box's data
+      ivec3 player_position;
+      ref<scene_node> player_node;
       ivec3 dim;
+      
       float cx, cy, sx, sy;
 
     public:
@@ -148,6 +151,23 @@ namespace octet {
             }
           }
         }
+      }
+
+      void move_player(int N, int dx, int dy){
+        auto IX = [=] (int i, int j) { return i + (N + 2)*j; };
+
+        player_node->translate(vec3(dx*sx, dy*sy, 0));
+      }
+
+      void add_player (int x, int y, mesh_sprite*& sprite_player, scene_node* node){
+        player_node = node;
+        player_position.x() = x;
+        player_position.y() = y;
+        sprite_player = new mesh_sprite (
+          vec3 (cx + x*sx + sx / 2, cy + y*sy + sy / 2, 0),
+          vec2 (sx, sy),
+          mat4t ().loadIdentity ().translate (vec3 (0, 0, 1))
+        );
       }
 
       //I am ok with *&, but they will fire me, right? I can't see other elegant solution... Any advice?
@@ -382,13 +402,33 @@ namespace octet {
   public:
     my_chamber (int argc, char **argv) : app (argc, argv) {}
 
-    void add_box(){
-      
+    void add_box(image* img, int x, int y, int size){
+      material *box_mat = new material (img);
+
+      scene_node* node = new scene_node ();
+      mesh_sprite* box;
+      //todo: remove this dumb N argument
+      the_mesh->add_box (99, x, y, size, box, node);
+      //todo: check if all new-generated objects are deleted
+
+      app_scene->add_child (node);
+      app_scene->add_mesh_instance (new mesh_instance (node, box, box_mat));
+    }
+
+    //todo: remove code repetition
+    void add_player(image *img, int x, int y){
+      material *box_mat = new material (img);
+      scene_node* node = new scene_node ();
+      mesh_sprite* player;
+      the_mesh->add_player (x, y,player, node);
+      app_scene->add_child (node);
+      app_scene->add_mesh_instance (new mesh_instance (node, player, box_mat));
     }
 
     void app_init () {
       //init scene
       app_scene = new visual_scene ();
+      //todo: set camera ortho
       app_scene->create_default_camera_and_lights ();
 
       //init fluid_mesh
@@ -399,17 +439,14 @@ namespace octet {
       app_scene->add_mesh_instance (new mesh_instance (node, the_mesh, green));
 
       //add boxes, move this to separate function
-      image *img = new image ("assets/projects/my_chamber/box.gif");
-      material *box_mat = new material (img);
-    
-      node = new scene_node ();
-      mesh_sprite* box;
-      //todo: remove this dumb N argument
-      the_mesh->add_box (99, 20, 70, 10, box, node);
-      //todo: check if all new-generated objects are deleted
-     
-      app_scene->add_child (node);
-      app_scene->add_mesh_instance (new mesh_instance (node, box, box_mat));
+      image *box_img = new image ("assets/projects/my_chamber/box.gif");
+      add_box (box_img, 70, 30, 5);
+      
+      //todo: make rest players sprite's background transparent
+      //set up player
+      image *player_img = new image ("assets/projects/my_chamber/player.gif");
+      add_player (player_img, 30, 30);
+
     }
 
     void draw_world (int x, int y, int w, int h) {
@@ -425,16 +462,13 @@ namespace octet {
       app_scene->render ((float) vx / vy);
       
       if(is_key_down(key_up)  ){
-        the_mesh->move_box (99, 0, 0, 1);
-      }
-      if ( is_key_down (key_down) ) {
-        the_mesh->move_box (99, 0, 0, -1);
-      }
-      if ( is_key_down (key_left) ) {
-        the_mesh->move_box (99, 0, -1, 0);
-      }
-      if ( is_key_down (key_right) ) {
-        the_mesh->move_box (99, 0, +1, 0);
+        the_mesh->move_player (99, 0, 1);
+      }else if ( is_key_down (key_down) ) {
+        the_mesh->move_player (99, 0, -1);
+      } else if ( is_key_down (key_left) ) {
+        the_mesh->move_player (99, -1, 0);
+      } else if ( is_key_down (key_right) ) {
+        the_mesh->move_player (99, +1, 0);
       }
     }
   };
