@@ -62,6 +62,7 @@ namespace octet {
         add_attribute (attribute_color, 3, GL_FLOAT, 12);
       }
 
+      //checks if space is free on the opposite side of the box 
       bool movable(int N, const vec3 &box, int dx, int dy){
         auto IX = [=] (int i, int j) { return i + (N + 2)*j; };
         assert (!dx || !dy);
@@ -96,47 +97,62 @@ namespace octet {
         }
       }
 
+      //moves the mask and implements movment heuristics for the fluid
       void move_box(int N, int index, int dx, int dy){
-        //todo: repair infinite amplification on the edges parallell to the movement
-        vec3 &box = boxes[index];
-        assert (!dx || !dy);
         auto IX = [=] (int i, int j) { return i + (N + 2)*j; };
+        vec3 &box = boxes[index];
+
+        //check if the movement (dx, dy) is aa
+        assert (!dx || !dy);
+
         if ( !movable (N, box, dx, dy) )
           return;
+
+        //go over all box grid positions
         for(int i=box.x(); i<box.x()+box.z(); ++i){
           for(int j=box.y(); j<box.y()+box.z(); ++j){
+            //if we are on the forward edge of the box
             if( mask[IX (i+dx, j+dy)]!=1){
-              density[IX (i + 2*dx, j + 2*dy)] += density[IX (i + dx, j + dy)]/1.5f;
+              //push the density in front of the box one row further
+              density[IX (i + 2*dx, j + 2*dy)] += density[IX (i + dx, j + dy)]/2.0f;
             }
+            //clear the density in the box
             density[IX (i, j)] = 0;
+            //zero the mask
             mask[IX (i, j)] = 0;
           }
         }
+
+        //move the box
         box[0] += dx;
         box[1] += dy;
+
+        //fill the mask
         for ( int i = box.x (); i < box.x () + box.z (); ++i ) {
           for ( int j = box.y (); j < box.y () + box.z (); ++j ){
             mask[IX (i, j)] = 1;
           }
         }
+        //go over all box grid positions
         for ( int i = box.x (); i<box.x () + box.z (); ++i ) {
-          for ( int j = box.y (); j<box.y () + box.z (); ++j ) {            
+          for ( int j = box.y (); j<box.y () + box.z (); ++j ) {
+            //if we are on the forward edge of the box
             if ( mask[IX (i + dx, j + dy)] != 1 ) {
+              //if movement horizontal
               if ( dx ) {
-                
+                //add movement aligned velocity to the forward edge
                 vx[IX (i + dx, j + dy)] += 3*dx;
               } else {
+                //...
                 vy[IX (i + dx, j + dy)] += 3 * dy;
               }
+            //if we are on the backward edge of the box
             }else if( mask[IX (i - dx, j - dy)] != 1 ){
               density[IX (i - dx, j - dy)] = 0;
               if ( dx ) {
-                std::cout << "ads" << std::endl;
                 vx[IX (i - dx, j - dy)] += 2 * dx;
-                //vx[IX (i - 2*dx, j - 2*dy)] += 1.5 * dx;
               } else {
                 vy[IX (i - dx, j - dy)] += 2 * dy;
-                //vy[IX (i - 2*dx, j - 2*dy)] += 1.5 * dy;
               }
             }
           }
