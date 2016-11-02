@@ -3,8 +3,8 @@ namespace octet {
   class my_chamber : public app {
     ref<visual_scene> app_scene;
     static const int grid_size = 100;
-    static const int fountain_x = 50;
-    static const int fountain_y = 30;
+    static const int fountain_x = 3;
+    static const int fountain_y = 3;
     class mesh_fluid : public mesh {
       struct my_vertex {
         vec3p pos;
@@ -160,6 +160,8 @@ namespace octet {
         auto IX = [=] (int i, int j) { return i + (N + 2)*j; };
         int id = mask[IX (player_position.x () + dx, player_position.y () + dy)];
         //std::cout <<"grid id: " << player_position.x () + dx <<" "<< player_position.y () + dy << " "<<id << std::endl;
+        if ( id == -1 )
+          return;
         if(id==0){
           player_position[0] += dx;
           player_position[1] += dy;
@@ -181,8 +183,18 @@ namespace octet {
         sprite_player = new mesh_sprite (
           vec3 (cx + x*sx + sx / 2, cy + y*sy + sy / 2, 0),
           vec2 (sx, sy),
-          mat4t ().loadIdentity ().translate (vec3 (0, 0, 1))
+          mat4t ().loadIdentity ().translate (vec3 (0, 0, 0.01))
         );
+      }
+
+      void set_room_mask(int N){
+        auto IX = [=] (int i, int j) { return i + (N + 2)*j; };
+        for(int i=1; i<=N; i++){
+          mask[IX (i, 0)] = -1;
+          mask[IX (0, i)] = -1;
+          mask[IX (i, N + 1)] = -1;
+          mask[IX (N + 1, i)] = -1;
+        }
       }
 
       //I am ok with *&, but they will fire me, right? I can't see other elegant solution... Any advice?
@@ -200,8 +212,8 @@ namespace octet {
         box_sprite = new mesh_sprite(
           //todo: first argument needs probably (size+1)
           vec3(cx+x*sx+size*sx/2, cy+y*sy+size*sy/2, 0),
-          vec2((size+1)*sx, (size+1)*sy),
-          mat4t().loadIdentity().translate(vec3(0, 0, 1))
+          vec2((size)*sx, (size)*sy),
+          mat4t().loadIdentity().translate(vec3(0, 0, 0.01))
         );
         
       }
@@ -372,8 +384,8 @@ namespace octet {
         float *u = vx.data (), *v = vy.data (), *u_prev = prev_vx.data (), *v_prev = prev_vy.data ();
         float *dens = density.data (), *dens_prev = prev_density.data ();
         int* m = mask.data ();
-        float visc = 0;
-        float diff = 0.0001f;
+        float visc = 0.000f;
+        float diff = 0.00008f;
 
         //printf("dtot=%f\n", std::accumulate(density.cbegin(), density.cend(), 0.0f));
 
@@ -383,7 +395,7 @@ namespace octet {
         std::fill (prev_density.begin (), prev_density.end (), 0.0f);
 
         // you could use a UI to do this.
-        float c = 0;//math::cos(frame_number*0.01f);
+        float c = 1;//math::cos(frame_number*0.01f);
         float s = 1;//math::sin (frame_number*0.01f);
         density[fountain_x + (dim.x () + 1) *fountain_y] += 100 * dt;
         u[fountain_x + (dim.x () + 1) *fountain_y] += c * (50 * dt);
@@ -407,7 +419,7 @@ namespace octet {
             my_vertex v;
             v.pos = vec3p (i * sx + cx, j * sy + cy, 0);
             float color_value = std::max (0.0f, std::min (density[i + j*stride], 1.0f));
-            v.color = vec3p (color_value / 3.0f, color_value, color_value / 3.0f);
+            v.color = vec3p (atan(color_value*5.0f) / 5.0f, atan(color_value*5.0f)/3, atan(color_value*5.0f) / 5.0f);
             vertices[d++] = v;
           }
         }
@@ -456,9 +468,19 @@ namespace octet {
       app_scene->add_child (node);
       app_scene->add_mesh_instance (new mesh_instance (node, the_mesh, green));
 
+      the_mesh->set_room_mask (99);
+
       //add boxes, move this to separate function
       image *box_img = new image ("assets/projects/my_chamber/box.gif");
-      add_box (box_img, 70, 30, 5);
+      add_box (box_img, 40, 1, 10);
+      add_box (box_img, 40, 12, 10);
+      add_box (box_img, 40, 24, 10);
+      add_box (box_img, 40, 36, 10);
+      add_box (box_img, 1, 40, 10);
+      add_box (box_img, 12, 40, 10);
+      add_box (box_img, 24, 40, 10);
+      //add_box (box_img, 36, 40, 5);
+
       
       //todo: make rest players sprite's background transparent
       //set up player
