@@ -9,7 +9,7 @@ o View form the top, movable blocks
 * boxes have white outlines
 * boxes hide the boundary texels
 * movie with subsequent stages of work (thx to commits)
-* years of wars in the bg ;)
+* years of wars as ST for demo ;)
 * use bfs to count percentile of map defended
 * count percentile of closed field
 * count amount of fluid on our side
@@ -18,4 +18,12 @@ o View form the top, movable blocks
 	 but also early poluted ares of the map
 * level creator
 * subsequent levels + score
-* timer + countdown: level ends when time is over or when you die 
+* timer + countdown: level ends when time is over or when you die
+* one level, no editor
+* export all parameters in the begining of the code
+* health is lost acoording to level of pollution
+* "lab secured" text when level complete
+* "leak detected" when the source is closed but the wall is not wide enough (thinner than 1) and the level of the gass increases
+* health is enough to make some pushing throught the gass
+* randomized size and
+* pickupable scafander that protects from fluid and lasts seconds

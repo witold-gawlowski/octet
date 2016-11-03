@@ -108,7 +108,7 @@ namespace octet {
             //if we are on the forward edge of the box
             if( mask[IX (i+dx, j+dy)]!=1){
               //push the density in front of the box one row further
-              density[IX (i + 2*dx, j + 2*dy)] += density[IX (i + dx, j + dy)]/2.0f;
+              density[IX (i + 2*dx, j + 2*dy)] += atan(density[IX (i + dx, j + dy)]/2.5f);
             }
             //clear the density in the box
             density[IX (i, j)] = 0;
@@ -131,23 +131,23 @@ namespace octet {
         for ( int i = box.x (); i<box.x () + box.z (); ++i ) {
           for ( int j = box.y (); j<box.y () + box.z (); ++j ) {
             //if we are on the forward edge of the box
-            if ( mask[IX (i + dx, j + dy)] != 1 ) {
+            if (!mask[IX (i + dx, j + dy)]) {
               //if movement horizontal
               if ( dx ) {
                 //add movement aligned velocity to the forward edge
                 //todo: adjust the magic numbers...
-                vx[IX (i + dx, j + dy)] += 3*dx;
+                vx[IX (i + dx, j + dy)] += 1.3*dx;
               } else {
                 //...
-                vy[IX (i + dx, j + dy)] += 3 * dy;
+                vy[IX (i + dx, j + dy)] += 1.3 * dy;
               }
             //if we are on the backward edge of the box
-            }else if( mask[IX (i - dx, j - dy)] != 1 ){
+            }else if(!mask[IX (i - dx, j - dy)] ){
               density[IX (i - dx, j - dy)] = 0;
               if ( dx ) {
-                vx[IX (i - dx, j - dy)] += 2 * dx;
+                vx[IX (i - dx, j - dy)] += 1.3 * dx;
               } else {
-                vy[IX (i - dx, j - dy)] += 2 * dy;
+                vy[IX (i - dx, j - dy)] += 1.3 * dy;
               }
             }
           }
@@ -378,14 +378,14 @@ namespace octet {
       }
 
       void update (int frame_number) {
-        float dt = 1.0f /50;
+        float dt = 1.0f /30;
         int N = dim.x () - 1;
         assert (density.size () == (N + 2)*(N + 2));
         float *u = vx.data (), *v = vy.data (), *u_prev = prev_vx.data (), *v_prev = prev_vy.data ();
         float *dens = density.data (), *dens_prev = prev_density.data ();
         int* m = mask.data ();
         float visc = 0.000f;
-        float diff = 0.00000f;
+        float diff = 0.00008f;
 
         //printf("dtot=%f\n", std::accumulate(density.cbegin(), density.cend(), 0.0f));
 
@@ -419,7 +419,8 @@ namespace octet {
             my_vertex v;
             v.pos = vec3p (i * sx + cx, j * sy + cy, 0);
             float color_value = std::max (0.0f, std::min (density[i + j*stride], 1.0f));
-            v.color = vec3p (atan(color_value*5.0f) / 5.0f, atan(color_value*5.0f)/3, atan(color_value*5.0f) / 5.0f);
+            v.color = vec3p (atan(color_value*1.0f) / 3.0f, atan(color_value*1.0f)/3.0f, atan(color_value*1.0f) / 2.0f);
+            v.color = vec3p (atan(color_value*2.0f), atan(color_value*2.0f), atan(color_value*1.0f)*4.0f);
             vertices[d++] = v;
           }
         }
@@ -455,6 +456,7 @@ namespace octet {
       app_scene->add_mesh_instance (new mesh_instance (node, player, box_mat));
     }
 
+    
     void app_init () {
       //init scene
       app_scene = new visual_scene ();
@@ -472,12 +474,12 @@ namespace octet {
 
       //add boxes, move this to separate function
       image *box_img = new image ("assets/projects/my_chamber/box.gif");
-      add_box (box_img, 40, 1, 10);
-      add_box (box_img, 40, 12, 10);
+      add_box (box_img, 40, 1, 5);
+      add_box (box_img, 40, 12, 5);
       add_box (box_img, 40, 24, 10);
-      add_box (box_img, 40, 36, 10);
+      add_box (box_img, 40, 36, 5);
       add_box (box_img, 1, 40, 10);
-      add_box (box_img, 12, 40, 10);
+      add_box (box_img, 12, 40, 5);
       add_box (box_img, 24, 40, 10);
       //add_box (box_img, 36, 40, 5);
 

@@ -379,7 +379,8 @@ namespace octet {
       modelToWorld.loadIdentity();
       modelToWorld.translate(x, y, 0);
       modelToWorld.scale(scale, scale, 1);
-      mat4t modelToProjection = mat4t::build_projection_matrix(modelToWorld, cameraToWorld);
+      mat4t modelToProjection = mat4t::build_projection_matrix(modelToWorld, 
+        );
 
       /*mat4t tmp;
       glLoadIdentity();
