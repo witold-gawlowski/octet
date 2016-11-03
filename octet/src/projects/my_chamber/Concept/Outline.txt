@@ -1,5 +1,5 @@
-* basically block-moving game + gas puzzle
-* View form the top, movable blocks
+o basically block-moving game + gas puzzle
+o View form the top, movable blocks 
 * level of gas influences the health decrease
 * Fluid Gas (color crucial)
 * Shader for shading the space from character perspective 
@@ -11,3 +11,11 @@
 * movie with subsequent stages of work (thx to commits)
 * years of wars in the bg ;)
 * use bfs to count percentile of map defended
+* count percentile of closed field
+* count amount of fluid on our side
+* player targets at saving the most of area  from being poluted:
+	-this target is important as it makes player enclose not only fluid,
+	 but also early poluted ares of the map
+* level creator
+* subsequent levels + score
+* timer + countdown: level ends when time is over or when you die 

@@ -378,14 +378,14 @@ namespace octet {
       }
 
       void update (int frame_number) {
-        float dt = 1.0f / 30;
+        float dt = 1.0f /50;
         int N = dim.x () - 1;
         assert (density.size () == (N + 2)*(N + 2));
         float *u = vx.data (), *v = vy.data (), *u_prev = prev_vx.data (), *v_prev = prev_vy.data ();
         float *dens = density.data (), *dens_prev = prev_density.data ();
         int* m = mask.data ();
         float visc = 0.000f;
-        float diff = 0.00008f;
+        float diff = 0.00000f;
 
         //printf("dtot=%f\n", std::accumulate(density.cbegin(), density.cend(), 0.0f));
 
@@ -397,9 +397,9 @@ namespace octet {
         // you could use a UI to do this.
         float c = 1;//math::cos(frame_number*0.01f);
         float s = 1;//math::sin (frame_number*0.01f);
-        density[fountain_x + (dim.x () + 1) *fountain_y] += 100 * dt;
-        u[fountain_x + (dim.x () + 1) *fountain_y] += c * (50 * dt);
-        v[fountain_x + (dim.x () + 1) * fountain_y] += s * (50 * dt);
+        density[fountain_x + (dim.x () + 1) *fountain_y] += 20 * dt;
+        u[fountain_x + (dim.x () + 1) *fountain_y] += c * (80 * dt);
+        v[fountain_x + (dim.x () + 1) * fountain_y] += s * (80 * dt);
 
         // step the simulation.
         //get_from_UI( dens_prev, u_prev, v_prev );
