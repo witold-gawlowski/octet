@@ -34,6 +34,8 @@ game:
 # set window not resizable
 # create some music yo
 # use fmod for sounds
+# score bar on the left side: max score = whole area* no pollution
+
 
 clip:
 * movie with subsequent stages of work (thx to commits)
@@ -45,3 +47,5 @@ clip:
 	- pollution
 	- area 
 	- total score:
+* make the surrounding writings that describe what to do...
+* refine edges so its clear where is the leak

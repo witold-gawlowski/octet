@@ -94,10 +94,10 @@ namespace octet {
         }
         return true;
       }
-      int asd;
+      int cell_count;
       float dfs(int N, int x, int y){
-        asd++;
-        if(!(asd%500)) std::cout << "asd: " << asd << std::endl;
+        cell_count++;
+        if(!(cell_count%50)) std::cout << "cell_count: " << cell_count << std::endl;
         auto IX = [=] (int i, int j) { return i + (N + 2)*j; };
         visited[IX (x, y)] = true;
         if(x == fountain_x && y == fountain_y){
@@ -237,7 +237,9 @@ namespace octet {
         auto IX = [=] (int i, int j) { return i + (N + 2)*j; };
         for(int i=0; i<size; i++ ){
           for(int j=0; j<size; j++ ){
-            if(mask[IX(x+i, y+j)] || (x+i==player_position.x() && y+j==player_position.y()) || (x+i==fountain_x && y + j == fountain_y)){
+            if(mask[IX(x+i, y+j)] ||
+              ((x+i==player_position.x()) && (y+j==player_position.y())) ||
+                ((x+i==fountain_x) && (y + j == fountain_y))){
               return false;
             }
           }
@@ -256,7 +258,7 @@ namespace octet {
             x = rand () % (dim.x () - 5) + 5;
             y = rand () % (dim.y () - 5) + 5;
           }
-          c++;
+          //c++;
         } while ( !space_free (N, x, y, size) && c < 100 );
         if(c==100 ){
           return vec3 (0, 0, 0);
@@ -488,6 +490,9 @@ namespace octet {
             float color_value = std::max (0.0f, std::min (density[i + j*stride], 1.0f));
             v.color = vec3p (atan(color_value*1.0f) / 3.0f, atan(color_value*1.0f)/3.0f, atan(color_value*1.0f) / 2.0f);
             v.color = vec3p (atan(color_value*3.0f), atan(color_value*3.0f), atan(color_value*1.0f)*6.0f);
+            auto IX = [=] (int i, int j) { return i + (N + 2)*j; };
+            if ( visited[IX (i, j)] )
+              v.color = vec3p (1, 0,0);
             vertices[d++] = v;
           }
         }
@@ -523,6 +528,8 @@ namespace octet {
     float health;
     ref<mesh_sprite> health_bar;
     ref<scene_node> health_bar_node;
+    ref<mesh_sprite> score_bar;
+    ref<scene_node> score_bar_node;
 
     bool game_over_flag;
   public:
@@ -574,12 +581,6 @@ namespace octet {
 
       //add boxes and walls
       image *box_img = new image ("assets/projects/my_chamber/box.gif");
-      for(int i=0; i<15; i++){
-        vec3 box_params = the_mesh->random_box (99, 8, 10);
-        if ( box_params.z () != 0 ) {
-          add_box (box_img, box_params[0], box_params[1], box_params[2], true);
-        }
-      }
       image *wall_image = new image ("assets/projects/my_chamber/Rock.gif");
       for ( int i = 0; i<10; i++ ) {
         vec3 box_params = the_mesh->random_box (99, 12, 10);
@@ -587,7 +588,12 @@ namespace octet {
           add_box (wall_image, box_params[0], box_params[1], box_params[2], false);
         }
       }
-      
+      for ( int i = 0; i<50; i++ ) {
+        vec3 box_params = the_mesh->random_box (99, 8, 10);
+        if ( box_params.z () != 0 ) {
+          add_box (box_img, box_params[0], box_params[1], box_params[2], true);
+        }
+      }
       //todo: make rest players sprite's background transparent
       //set up player
       image *player_img = new image ("assets/projects/my_chamber/player.gif");
@@ -600,10 +606,19 @@ namespace octet {
       health_bar_node = new scene_node ();
       health_bar_node->loadIdentity ();
       health_bar_node->translate (
-        vec3 (the_mesh->get_cx()+the_mesh->get_aabb ().get_half_extent ().x () * 2 + the_mesh->get_sx (), the_mesh->get_cx ()+the_mesh->get_aabb().get_half_extent().y(), 0.1)
+        vec3 (the_mesh->get_cx()+the_mesh->get_aabb ().get_half_extent ().x () * 2 + the_mesh->get_sx (), the_mesh->get_cy ()+the_mesh->get_aabb().get_half_extent().y(), 0.1)
           );
       app_scene->add_mesh_instance (new mesh_instance (health_bar_node, health_bar, bar_mat));
       
+      //set up score bar
+      score_bar = new mesh_sprite (vec3 (0), vec2 (the_mesh->get_sx ()*1.0f, the_mesh->get_aabb ().get_half_extent ().y ()*2.0f), mat4t ());
+      score_bar_node = new scene_node ();
+      score_bar_node->loadIdentity ();
+      score_bar_node->translate (
+        vec3 (the_mesh->get_cx () +the_mesh->get_sx ()/2, the_mesh->get_cy () + the_mesh->get_aabb ().get_half_extent ().y (), 0.1)
+      );
+      app_scene->add_mesh_instance (new mesh_instance (score_bar_node, score_bar, bar_mat));
+
     }
 
     void game_over(image* GO_img){
@@ -630,12 +645,22 @@ namespace octet {
       float f = health / 100.0f * the_mesh->get_aabb ().get_half_extent ().y ()*2.0f;
       health_bar_node->loadIdentity ();
       health_bar_node->translate (
-        vec3 (the_mesh->get_cx () + the_mesh->get_aabb ().get_half_extent ().x () * 2 - the_mesh->get_sx () / 2.0f,
+        vec3 (the_mesh->get_cx () + the_mesh->get_aabb ().get_half_extent ().x () * 2 + the_mesh->get_sx () / 2.0f,
           f/2+the_mesh->get_cy(), 0.1f)
       );
       health_bar_node->scale (vec3 (1, health / 100, 1));
     }
 
+    void update_score(float score){
+      score_bar_node->loadIdentity ();
+      score_bar_node->translate (
+        vec3 (the_mesh->get_cx () + the_mesh->get_sx () / 2.0f,
+          score/(99*99)*the_mesh->get_aabb ().get_half_extent ().y () + the_mesh->get_cy (), 0.1f)
+      );
+      std::cout << "asd" << score / (99 * 99) << std::endl;
+      
+      score_bar_node->scale (vec3 (1, score / (99*99), 1));
+    }
 
 
     void draw_world (int x, int y, int w, int h) {
@@ -651,13 +676,16 @@ namespace octet {
       
       app_scene->render ((float) vx / vy);
       
-      the_mesh->asd = 0;
+      the_mesh->cell_count = 0;
       float dfs_result = the_mesh->run_dfs (99);
       if ( dfs_result > 0) {
-        std::cout << "result: " << dfs_result << std::endl;
+        
+        update_score (the_mesh->cell_count / (dfs_result + 1));
+        std::cout << "result: " << dfs_result << " cell couunt: " <<the_mesh->cell_count  << std::endl;
         //game_over (new image ("assets/projects/my_chamber/lab_secured.gif"));
+      }else{
+        update_score (0);
       }
- 
       
       
        if(is_key_down(key_up)  ){
