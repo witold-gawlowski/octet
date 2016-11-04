@@ -55,6 +55,7 @@ namespace octet {
 
 
       template <class sink_t> void get_geometry (sink_t &sink, int) {
+        //std::cout << "quad's half extent: " << half_extent << std::endl;
         static const float vertices[4 * 6 * 8] = {
 #undef OCTET_FACE
 #define OCTET_FACE(X, Y, U, V) X, Y, 1,  0, 0, 1, U, V,
