@@ -19,12 +19,12 @@ o View form the top, movable blocks
 ===============================================
 game:
 * use bfs to count percentile of map defended
-* health
++ health
 * player targets at saving the most of area  from being poluted:
 	-this target is important as it makes player enclose not only fluid,
 	 but also early poluted ares of the map
 * some randomized boxes not moving, with different texture
-* randomized levels
++ randomized levels
 * countdown
 * export all parameters to the beginning of the code
 + smoothly moving around the player

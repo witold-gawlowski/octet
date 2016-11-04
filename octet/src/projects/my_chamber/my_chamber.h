@@ -201,33 +201,41 @@ namespace octet {
         auto IX = [=] (int i, int j) { return i + (N + 2)*j; };
         for(int i=0; i<size; i++ ){
           for(int j=0; j<size; j++ ){
-            if(mask[IX(x+i, y+j)] && !(x+i==player_position.x() && y+j==player_position.y())){
+            if(mask[IX(x+i, y+j)] || (x+i==player_position.x() && y+j==player_position.y()) || (x+i==fountain_x && y + j == fountain_y)){
               return false;
             }
           }
         }
         return true;
       }
-      vec3 random_box (int N) {
+      vec3 random_box (int N, int size = -1, int grid = 0) {
         int c = 0;
-        int x, y, size;
+        int x, y;
         do {
-          size = rand () % 10 + 5;
-          x = rand () % (dim.x () - 5) + 5;
-          y = rand () % (dim.y () - 5) + 5;
+          if(size==-1) size = rand () % 10 + 5;
+          if(grid){
+            x = grid*(rand () % (dim.x () / grid)) + 1;
+            y = grid*(rand () % (dim.y () / grid)) + 1;
+          } else {
+            x = rand () % (dim.x () - 5) + 5;
+            y = rand () % (dim.y () - 5) + 5;
+          }
           c++;
         } while ( !space_free (N, x, y, size) && c < 100 );
+        if(c==100 ){
+          return vec3 (0, 0, 0);
+        }
         return vec3 (x, y, size);
       }
 
       //I am ok with *&, but they will fire me, right? I can't see other elegant solution... Any advice?
-      void add_box (int N, int x, int y, int size, mesh_sprite*& box_sprite, scene_node *node) {
+      void add_box (int N, int x, int y, int size, mesh_sprite*& box_sprite, scene_node *node, bool movable) {
         box_nodes.push_back (node);
         auto IX = [=] (int i, int j) { return i + (N + 2)*j; };
         for ( int i = x; i<x + size; ++i )
           for ( int j = y; j<y + size; ++j ) {
             //mark the mask with the box's id: index+1
-            mask[IX (i, j)] = box_nodes.size();
+            mask[IX (i, j)] = movable ? box_nodes.size() : -1;
             //std::cout << "add_box_log: " << i << " " << j << " " << mask[IX (i, j)] << std::endl;
           }
 
@@ -452,8 +460,8 @@ namespace octet {
         
         //smoothly move the player
         vec3 pos = player_node->get_position ();
-        vec3 target_pos = vec3 ((player_position.x () + 0.5f)*sx + cx, (player_position.y () + 0.5f)*sy + cy, 0);
-        player_node->translate (15.0f*(target_pos-pos)*dt);
+        vec3 target_pos = vec3 ((player_position.x () + 0.5f)*sx + cx, (player_position.y () + 0.5f)*sy + cy, 0.1);
+        player_node->translate (15*(target_pos-pos).normalize()*((target_pos - pos).length ()>0.01? (target_pos - pos).length ():0)*dt);
       }
       float get_cx(){
         return cx;
@@ -484,13 +492,15 @@ namespace octet {
   public:
     my_chamber (int argc, char **argv) : app (argc, argv) {}
 
-    void add_box(image* img, int x, int y, int size){
+
+
+    void add_box(image* img, int x, int y, int size, bool movable){
       material *box_mat = new material (img);
 
       scene_node* node = new scene_node ();
       mesh_sprite* box;
       //todo: remove this dumb N argument
-      the_mesh->add_box (99, x, y, size, box, node);
+      the_mesh->add_box (99, x, y, size, box, node, movable);
       //todo: check if all new-generated objects are deleted
 
       app_scene->add_child (node);
@@ -526,11 +536,20 @@ namespace octet {
 
       the_mesh->set_room_mask (99);
 
-      //add boxes, move this to separate function
+      //add boxes and walls
       image *box_img = new image ("assets/projects/my_chamber/box.gif");
       for(int i=0; i<10; i++){
-        vec3 box_params = the_mesh->random_box (99);
-        add_box (box_img, box_params[0], box_params[1], box_params[2]);
+        vec3 box_params = the_mesh->random_box (99, 10, 10);
+        if ( box_params.z () != 0 ) {
+          add_box (box_img, box_params[0], box_params[1], box_params[2], true);
+        }
+      }
+      image *wall_image = new image ("assets/projects/my_chamber/Rock.gif");
+      for ( int i = 0; i<5; i++ ) {
+        vec3 box_params = the_mesh->random_box (99, 20, 10);
+        if ( box_params.z () != 0 ) {
+          add_box (wall_image, box_params[0], box_params[1], box_params[2], false);
+        }
       }
       
       //todo: make rest players sprite's background transparent
@@ -538,14 +557,14 @@ namespace octet {
       image *player_img = new image ("assets/projects/my_chamber/player.gif");
       add_player (player_img, 30, 30);
       health = 100;
-      health_bar = new mesh_sprite (vec3(0), vec2(the_mesh->get_sx()*2.0f, the_mesh->get_aabb().get_half_extent().y()*2.0f), mat4t());
+      health_bar = new mesh_sprite (vec3(0), vec2(the_mesh->get_sx()*1.0f, the_mesh->get_aabb().get_half_extent().y()*2.0f), mat4t());
       //std::cout <<"health bar size: "<< the_mesh->get_sx () << " " << the_mesh->get_aabb ().get_half_extent ().y ()*2.0f;
       //todo: put color def outside, make a parameter
       material *bar_mat = new material (vec4(142/255., 77/255., 198/255., 0));
       health_bar_node = new scene_node ();
       health_bar_node->loadIdentity ();
       health_bar_node->translate (
-        vec3 (the_mesh->get_cx()+the_mesh->get_aabb ().get_half_extent ().x () * 2 - the_mesh->get_sx ()/2.0f, the_mesh->get_cx ()+the_mesh->get_aabb().get_half_extent().y(), 0.1)
+        vec3 (the_mesh->get_cx()+the_mesh->get_aabb ().get_half_extent ().x () * 2 + the_mesh->get_sx (), the_mesh->get_cx ()+the_mesh->get_aabb().get_half_extent().y(), 0.1)
           );
       app_scene->add_mesh_instance (new mesh_instance (health_bar_node, health_bar, bar_mat));
       
