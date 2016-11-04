@@ -19,12 +19,15 @@ namespace octet {
       std::vector<float> density;
       std::vector<float> vx;
       std::vector<float> vy;
+      ivec3 dim;
+
+      std::vector<int> visited;
       std::vector<int> mask;
       std::vector<vec3> box_transforms; //(pos_x, pos_y, size)
       std::vector<ref<scene_node>> box_nodes; //box_transforms[i] and box_beshes[i] carry i-th box's data
       ivec3 player_position;
       ref<scene_node> player_node;
-      ivec3 dim;
+
       
       float cx, cy, sx, sy;
 
@@ -39,11 +42,13 @@ namespace octet {
         density.resize ((dim.x () + 1)*(dim.y () + 1));
         vx.resize ((dim.x () + 1)*(dim.y () + 1));
         vy.resize ((dim.x () + 1)*(dim.y () + 1));
-        mask.resize ((dim.x () + 1)*(dim.y () + 1));
-
+       
         prev_density.resize ((dim.x () + 1)*(dim.y () + 1));
         prev_vx.resize ((dim.x () + 1)*(dim.y () + 1));
         prev_vy.resize ((dim.x () + 1)*(dim.y () + 1));
+
+        mask.resize ((dim.x () + 1)*(dim.y () + 1));
+        visited.resize ((dim.x () + 1)*(dim.y () + 1));
 
         //density[50 +(dim.x()+1) * 50] = 1;
         //prev_vx[50 +(dim.x()+1) * 50] = 1;
@@ -89,6 +94,37 @@ namespace octet {
         }
         return true;
       }
+      int asd;
+      float dfs(int N, int x, int y){
+        asd++;
+        if(!(asd%500)) std::cout << "asd: " << asd << std::endl;
+        auto IX = [=] (int i, int j) { return i + (N + 2)*j; };
+        visited[IX (x, y)] = true;
+        if(x == fountain_x && y == fountain_y){
+          return -1;
+        }
+        int dx[4] = { -1, 1, 0, 0 };
+        int dy[4] = { 0, 0, -1, 1 };
+        float result = density[IX (x, y)];
+        for(int i=0; i<4; i++){
+          int u = IX (x + dx[i], y + dy[i]);
+          if(!visited[u] && !mask[u]){
+            float crop = dfs (N, x + dx[i], y + dy[i]);
+            if ( crop == -1 )
+              return -1;
+            else
+              result += crop;
+          }
+        }
+        return result;
+      }
+
+      int run_dfs(int N){
+        auto IX = [=] (int i, int j) { return i + (N + 2)*j; };
+        std::fill (visited.begin (), visited.end (), 0);
+        return dfs (N, player_position.x (), player_position.y ());
+      }
+
       //moves the mask and implements movment heuristics for the fluid
       bool move_box(int N, int index, int dx, int dy){
         auto IX = [=] (int i, int j) { return i + (N + 2)*j; };
@@ -538,15 +574,15 @@ namespace octet {
 
       //add boxes and walls
       image *box_img = new image ("assets/projects/my_chamber/box.gif");
-      for(int i=0; i<10; i++){
-        vec3 box_params = the_mesh->random_box (99, 10, 10);
+      for(int i=0; i<15; i++){
+        vec3 box_params = the_mesh->random_box (99, 8, 10);
         if ( box_params.z () != 0 ) {
           add_box (box_img, box_params[0], box_params[1], box_params[2], true);
         }
       }
       image *wall_image = new image ("assets/projects/my_chamber/Rock.gif");
-      for ( int i = 0; i<5; i++ ) {
-        vec3 box_params = the_mesh->random_box (99, 20, 10);
+      for ( int i = 0; i<10; i++ ) {
+        vec3 box_params = the_mesh->random_box (99, 12, 10);
         if ( box_params.z () != 0 ) {
           add_box (wall_image, box_params[0], box_params[1], box_params[2], false);
         }
@@ -555,7 +591,7 @@ namespace octet {
       //todo: make rest players sprite's background transparent
       //set up player
       image *player_img = new image ("assets/projects/my_chamber/player.gif");
-      add_player (player_img, 30, 30);
+      add_player (player_img, 90, 90);
       health = 100;
       health_bar = new mesh_sprite (vec3(0), vec2(the_mesh->get_sx()*1.0f, the_mesh->get_aabb().get_half_extent().y()*2.0f), mat4t());
       //std::cout <<"health bar size: "<< the_mesh->get_sx () << " " << the_mesh->get_aabb ().get_half_extent ().y ()*2.0f;
@@ -570,13 +606,11 @@ namespace octet {
       
     }
 
-    void game_over(){
+    void game_over(image* GO_img){
       if(game_over_flag){
         return;
       }
       game_over_flag = 1;
-
-      image *GO_img = new image ("assets/projects/my_chamber/game_over.gif");
       material *GO_mat = new material (GO_img);
       scene_node* node = new scene_node ();
       vec3 pos = the_mesh->get_aabb ().get_center ();
@@ -590,7 +624,7 @@ namespace octet {
       //todo: make health decrease frame-rate independent
       health -= 20*the_mesh->get_player_polution(99);
       if(health < 0){
-        game_over ();
+        game_over (new image ("assets/projects/my_chamber/game_over.gif"));
         return;
       }
       float f = health / 100.0f * the_mesh->get_aabb ().get_half_extent ().y ()*2.0f;
@@ -616,7 +650,13 @@ namespace octet {
       app_scene->update (1.0f / 30);
       
       app_scene->render ((float) vx / vy);
-
+      
+      the_mesh->asd = 0;
+      float dfs_result = the_mesh->run_dfs (99);
+      if ( dfs_result > 0) {
+        std::cout << "result: " << dfs_result << std::endl;
+        //game_over (new image ("assets/projects/my_chamber/lab_secured.gif"));
+      }
  
       
       

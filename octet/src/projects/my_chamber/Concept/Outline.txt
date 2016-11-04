@@ -18,25 +18,30 @@ o View form the top, movable blocks
 * player gets defence as circle anround him
 ===============================================
 game:
-* use bfs to count percentile of map defended
+# use bfs to count percentile of map defended
 + health
 * player targets at saving the most of area  from being poluted:
 	-this target is important as it makes player enclose not only fluid,
 	 but also early poluted ares of the map
-* some randomized boxes not moving, with different texture
++ some randomized boxes not moving, with different texture
 + randomized levels
 * countdown
-* export all parameters to the beginning of the code
+# export all parameters to the beginning of the code
 + smoothly moving around the player
 * displaying score, lab secured, and game over
-* move boxes and player code from mesh
-* make the code nicely structured for marks and for me for later change
-* set window not resizable
-* create some music yo
-* use fmod for sounds
+# move boxes and player code from mesh
+# make the code nicely structured for marks and for me for later change
+# set window not resizable
+# create some music yo
+# use fmod for sounds
 
 clip:
 * movie with subsequent stages of work (thx to commits)
 * years of wars in the bg ;)
 ==================================================
 * bug-feature: pushing the box creates a safe space from gas behind it :D
+* game end when there is no path from player to source, score screen:
+	- bonus time
+	- pollution
+	- area 
+	- total score:
