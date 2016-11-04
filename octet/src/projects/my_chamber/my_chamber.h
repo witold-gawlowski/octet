@@ -196,6 +196,29 @@ namespace octet {
           mask[IX (N + 1, i)] = -1;
         }
       }
+      
+      bool space_free(int N, int x, int y, int size){
+        auto IX = [=] (int i, int j) { return i + (N + 2)*j; };
+        for(int i=0; i<size; i++ ){
+          for(int j=0; j<size; j++ ){
+            if(mask[IX(x+i, y+j)] && !(x+i==player_position.x() && y+j==player_position.y())){
+              return false;
+            }
+          }
+        }
+        return true;
+      }
+      vec3 random_box (int N) {
+        int c = 0;
+        int x, y, size;
+        do {
+          size = rand () % 10 + 5;
+          x = rand () % (dim.x () - 5) + 5;
+          y = rand () % (dim.y () - 5) + 5;
+          c++;
+        } while ( !space_free (N, x, y, size) && c < 100 );
+        return vec3 (x, y, size);
+      }
 
       //I am ok with *&, but they will fire me, right? I can't see other elegant solution... Any advice?
       void add_box (int N, int x, int y, int size, mesh_sprite*& box_sprite, scene_node *node) {
@@ -485,6 +508,8 @@ namespace octet {
     }
 
     void app_init () {
+      srand (time (NULL));
+
       game_over_flag = 0;
 
       //init scene
@@ -503,15 +528,10 @@ namespace octet {
 
       //add boxes, move this to separate function
       image *box_img = new image ("assets/projects/my_chamber/box.gif");
-      add_box (box_img, 40, 1, 5);
-      add_box (box_img, 40, 12, 5);
-      add_box (box_img, 40, 24, 10);
-      add_box (box_img, 40, 36, 5);
-      add_box (box_img, 1, 40, 10);
-      add_box (box_img, 12, 40, 5);
-      add_box (box_img, 24, 40, 10);
-      //add_box (box_img, 36, 40, 5);
-
+      for(int i=0; i<10; i++){
+        vec3 box_params = the_mesh->random_box (99);
+        add_box (box_img, box_params[0], box_params[1], box_params[2]);
+      }
       
       //todo: make rest players sprite's background transparent
       //set up player
@@ -562,6 +582,8 @@ namespace octet {
       );
       health_bar_node->scale (vec3 (1, health / 100, 1));
     }
+
+
 
     void draw_world (int x, int y, int w, int h) {
       //todo: check what happens when you add boundaries to the mask
