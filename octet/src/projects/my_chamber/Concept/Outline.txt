@@ -32,6 +32,8 @@ game:
 * move boxes and player code from mesh
 * make the code nicely structured for marks and for me for later change
 * set window not resizable
+* create some music yo
+* use fmod for sounds
 
 clip:
 * movie with subsequent stages of work (thx to commits)

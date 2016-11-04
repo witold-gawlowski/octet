@@ -450,10 +450,14 @@ namespace octet {
       }
     };
 
+
+    ref<mesh_fluid> the_mesh;
+
     float health;
     ref<mesh_sprite> health_bar;
-    ref<mesh_fluid> the_mesh;
     ref<scene_node> health_bar_node;
+
+    bool game_over_flag;
   public:
     my_chamber (int argc, char **argv) : app (argc, argv) {}
 
@@ -480,8 +484,9 @@ namespace octet {
       app_scene->add_mesh_instance (new mesh_instance (node, player, box_mat));
     }
 
-    
     void app_init () {
+      game_over_flag = 0;
+
       //init scene
       app_scene = new visual_scene ();
       //todo: set camera ortho
@@ -520,16 +525,35 @@ namespace octet {
       health_bar_node = new scene_node ();
       health_bar_node->loadIdentity ();
       health_bar_node->translate (
-        //vec3 (0)
         vec3 (the_mesh->get_cx()+the_mesh->get_aabb ().get_half_extent ().x () * 2 - the_mesh->get_sx ()/2.0f, the_mesh->get_cx ()+the_mesh->get_aabb().get_half_extent().y(), 0.1)
           );
       app_scene->add_mesh_instance (new mesh_instance (health_bar_node, health_bar, bar_mat));
+      
+    }
 
+    void game_over(){
+      if(game_over_flag){
+        return;
+      }
+      game_over_flag = 1;
+
+      image *GO_img = new image ("assets/projects/my_chamber/game_over.gif");
+      material *GO_mat = new material (GO_img);
+      scene_node* node = new scene_node ();
+      vec3 pos = the_mesh->get_aabb ().get_center ();
+      pos += vec3 (0, 0, 0.2);
+      mesh_sprite* sprite = new mesh_sprite(pos,vec2(30, 30), mat4t());
+      app_scene->add_child (node);
+      app_scene->add_mesh_instance (new mesh_instance (node, sprite, GO_mat));
     }
 
     void update_health(){
       //todo: make health decrease frame-rate independent
-      health -= 10*the_mesh->get_player_polution(99);
+      health -= 20*the_mesh->get_player_polution(99);
+      if(health < 0){
+        game_over ();
+        return;
+      }
       float f = health / 100.0f * the_mesh->get_aabb ().get_half_extent ().y ()*2.0f;
       health_bar_node->loadIdentity ();
       health_bar_node->translate (
@@ -549,7 +573,7 @@ namespace octet {
       update_health ();
 
       app_scene->update (1.0f / 30);
-
+      
       app_scene->render ((float) vx / vy);
 
  
