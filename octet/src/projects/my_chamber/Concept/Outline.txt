@@ -56,6 +56,7 @@ o game end when there is no path from player to source, score screen:
 	- score bar left
 	- score appears only when you defended
 	- tell about leaky edges
+	- score and health visible during help window
 * export all parameters to the beginning of the code
 * move boxes and player code from the mesh code
 * make the code nicely structured for marks and for me for later change
@@ -63,7 +64,7 @@ o game end when there is no path from player to source, score screen:
 + remove the bug with boxes randomizing at players position
 * make some chiptune msc
 * use fmod for sounds
-
+* tab to bring back welcome screen and pause
 # add bg image
 	- add score scale on the bg img
 		* logarithmic scale

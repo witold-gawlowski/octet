@@ -38,7 +38,6 @@ namespace octet { namespace math {
 
     // construct from four scalars
     explicit vec3(float x, float y, float z) {
-      std::cout << x << " " << y << " " <<z << std::endl;
       #if OCTET_SSE
         m = _mm_setr_ps(x, y, z, z);
       #else
