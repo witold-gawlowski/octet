@@ -497,7 +497,7 @@ namespace octet {
             v.color = vec3p (atan(color_value*3.0f), atan(color_value*3.0f), atan(color_value*1.0f)*6.0f);
             auto IX = [=] (int i, int j) { return i + (N + 2)*j; };
             if ( visited[IX (i, j)]&& show_leaks)
-              v.color = vec3p (1, 0, 0);
+              v.color = vec3p (0.8, 0.8, 1);
            
             vertices[d++] = v;
           }
@@ -536,8 +536,11 @@ namespace octet {
     ref<scene_node> health_bar_node;
     ref<mesh_sprite> score_bar;
     ref<scene_node> score_bar_node;
+    ref<mesh_instance> welcome_mesh_instance;
 
     bool game_over_flag;
+    bool game_started;
+    bool game_paused;
   public:
     my_chamber (int argc, char **argv) : app (argc, argv) {}
 
@@ -568,9 +571,10 @@ namespace octet {
 
     void app_init () {
       srand (time (NULL));
-      set_viewport_size (520, 512);
-
+      
+      game_started = false;
       game_over_flag = 0;
+      game_paused = 1;
 
       //init scene
       app_scene = new visual_scene ();
@@ -594,7 +598,7 @@ namespace octet {
       health_bar = new mesh_sprite (vec3 (0), vec2 (the_mesh->get_sx ()*1.0f, the_mesh->get_aabb ().get_half_extent ().y ()*2.0f), mat4t ());
       //std::cout <<"health bar size: "<< the_mesh->get_sx () << " " << the_mesh->get_aabb ().get_half_extent ().y ()*2.0f;
       //todo: put color def outside, make a parameter
-      material *bar_mat = new material (vec4 (142 / 255., 77 / 255., 198 / 255., 0));
+      material *bar_mat =  new material (1.3*vec4 (142 / 255., 77 / 255., 198 / 255., 0));
       health_bar_node = new scene_node ();
       health_bar_node->loadIdentity ();
       health_bar_node->translate (
@@ -636,6 +640,15 @@ namespace octet {
       scene_node* bg_node = new scene_node ();
       app_scene->add_mesh_instance (new mesh_instance (bg_node, bg_sprite, bg_mat));
 
+      //display welcome screen
+      image *welcome_img = new image ("assets/projects/my_chamber/welcome_bg.gif");
+      material* welcome_mat = new  material (welcome_img);
+      scene_node* welcome_node = new scene_node ();
+      welcome_node->loadIdentity ();
+      welcome_node->translate (vec3 (the_mesh->get_aabb ().get_center ()));
+      welcome_node->translate (vec3 (0, 0, 4));
+      mesh_sprite* welcome_sprite = new mesh_sprite (vec3 (0, 0, 0) , vec2 (the_mesh->get_aabb ().get_half_extent ().xy() * 2), mat4t());
+      welcome_mesh_instance = app_scene->add_mesh_instance (new mesh_instance (welcome_node, welcome_sprite, welcome_mat));
     }
 
     void game_over(image* GO_img){
@@ -669,13 +682,14 @@ namespace octet {
     }
 
     void update_score(float score){
+      float recalc_score = sqrt (score / (the_mesh->empty_space));
       score_bar_node->loadIdentity ();
       score_bar_node->translate (
         vec3 (the_mesh->get_cx () + the_mesh->get_sx () / 2.0f,
-          sqrt(score/(the_mesh->cell_count))*the_mesh->get_aabb ().get_half_extent ().y () + the_mesh->get_cy (), 0.1f)
+          recalc_score *the_mesh->get_aabb ().get_half_extent ().y () + the_mesh->get_cy (), 0.1f)
       );
       
-      score_bar_node->scale (vec3 (1, sqrt(score / (the_mesh->cell_count)), 1));
+      score_bar_node->scale (vec3 (1, recalc_score, 1));
     }
 
 
@@ -685,10 +699,12 @@ namespace octet {
       get_viewport_size (vx, vy);
       app_scene->begin_render (vx, vy, vec4 (0, 0, 0, 1));
 
-      the_mesh->update (get_frame_number ());
+      if ( !game_paused ) {
+        the_mesh->update (get_frame_number ());
+      }
       update_health ();
 
-      app_scene->update (1.0f / 30);
+            app_scene->update (1.0f / 30);
       
       app_scene->render ((float) vx / vy);
       
@@ -697,13 +713,30 @@ namespace octet {
       if ( dfs_result >= 0) {
         
         update_score (the_mesh->cell_count / (dfs_result + 1));
-        //std::cout << "result: " << dfs_result << " cell couunt: " <<the_mesh->cell_count  << std::endl;
+        std::cout << "===========result: " << dfs_result << " cell couunt: " <<the_mesh->cell_count<< " space free: " <<the_mesh->empty_space << std::endl;
         //game_over (new image ("assets/projects/my_chamber/lab_secured.gif"));
       }else{
         update_score (0);
       }
       
-      
+      if(get_keys() && !game_started){
+        std::cout << "==================================pioupoipoi=========="<< std::endl;
+        game_paused = 0;
+        game_started = true;
+        welcome_mesh_instance->get_node()->translate(vec3(0, 30, 0));
+        std::cout << "===============welcome position: " << welcome_mesh_instance->get_node ()->get_position ().z() << std::endl;
+      }
+      if(game_started && is_key_down(key_tab) && game_paused == 0){
+        std::cout << "tab going down" << std::endl;
+        game_paused = 1;
+        welcome_mesh_instance->get_node ()->translate (vec3 (0, -30, 0));
+        std::cout << "===============welcome position: " << welcome_mesh_instance->get_node ()->get_position ().z() << std::endl;
+      }else if( game_started && game_paused == 1&& !is_key_down (key_tab) ) {
+        game_paused = 0;
+        welcome_mesh_instance->get_node ()->translate (vec3 (0, 30, 0));
+        std::cout << "===============welcome position: " << welcome_mesh_instance->get_node ()->get_position ().z () << std::endl;
+      }
+
        if(is_key_down(key_up)  ){
         the_mesh->move_player (99, 0, 1);
       }else if ( is_key_down (key_down) ) {
@@ -732,6 +765,7 @@ namespace octet {
         the_mesh->move_box (99, 0, +1, 0);
       }
       */
+      
     }
   };
 }
