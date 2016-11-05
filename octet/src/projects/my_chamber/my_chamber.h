@@ -27,11 +27,15 @@ namespace octet {
       std::vector<ref<scene_node>> box_nodes; //box_transforms[i] and box_beshes[i] carry i-th box's data
       ivec3 player_position;
       ref<scene_node> player_node;
-
+      
       
       float cx, cy, sx, sy;
 
     public:
+      bool show_leaks;
+      int cell_count;
+      float empty_space;
+
       mesh_fluid (aabb_in bb, ivec3_in dim) : mesh (), dim (dim) {
         mesh::set_aabb (bb);
         sx = bb.get_half_extent ().x ()*(2.0f / dim.x ());
@@ -94,10 +98,10 @@ namespace octet {
         }
         return true;
       }
-      int cell_count;
+      
       float dfs(int N, int x, int y){
         cell_count++;
-        if(!(cell_count%50)) std::cout << "cell_count: " << cell_count << std::endl;
+        //if(!(cell_count%500)) std::cout << "cell_count: " << cell_count << std::endl;
         auto IX = [=] (int i, int j) { return i + (N + 2)*j; };
         visited[IX (x, y)] = true;
         if(x == fountain_x && y == fountain_y){
@@ -215,7 +219,7 @@ namespace octet {
         player_position.x() = x;
         player_position.y() = y;
         //bug: if I change translate to set_position runtime error appears, why?
-        node->translate(vec3 (cx + x*sx + sx / 2, cy + y*sy + sy / 2, 0));
+        node->translate(vec3 (cx + x*sx , cy + y*sy , 0));
         sprite_player = new mesh_sprite (
           vec3 (0),
           vec2 (sx, sy),
@@ -274,13 +278,14 @@ namespace octet {
           for ( int j = y; j<y + size; ++j ) {
             //mark the mask with the box's id: index+1
             mask[IX (i, j)] = movable ? box_nodes.size() : -1;
+            empty_space--;
             //std::cout << "add_box_log: " << i << " " << j << " " << mask[IX (i, j)] << std::endl;
           }
 
         box_transforms.push_back (vec3 (x, y, size));
         box_sprite = new mesh_sprite(
           //todo: first argument needs probably (size+1)
-          vec3(cx+x*sx+size*sx/2, cy+y*sy+size*sy/2, 0),
+          vec3(cx+x*sx+(size-1)*sx/2, cy+y*sy+ (size - 1)*sy/2, 0),
           vec2((size)*sx, (size)*sy),
           mat4t().loadIdentity().translate(vec3(0, 0, 0.01))
         );
@@ -476,7 +481,7 @@ namespace octet {
         velocity_step (N, u, v, u_prev, v_prev, visc, dt, m);
         density_step (N, dens, dens_prev, u, v, diff, dt, m);
         long long t1 = __rdtsc ();
-        printf ("%lld clocks\n", t1 - t0);
+        //printf ("%lld clocks\n", t1 - t0);
 
         //printf("dtot=%f\n", std::accumulate(density.cbegin(), density.cend(), 0.0f));
 
@@ -491,8 +496,9 @@ namespace octet {
             v.color = vec3p (atan(color_value*1.0f) / 3.0f, atan(color_value*1.0f)/3.0f, atan(color_value*1.0f) / 2.0f);
             v.color = vec3p (atan(color_value*3.0f), atan(color_value*3.0f), atan(color_value*1.0f)*6.0f);
             auto IX = [=] (int i, int j) { return i + (N + 2)*j; };
-            if ( visited[IX (i, j)] )
-              v.color = vec3p (1, 0,0);
+            if ( visited[IX (i, j)]&& show_leaks)
+              v.color = vec3p (1, 0, 0);
+           
             vertices[d++] = v;
           }
         }
@@ -501,7 +507,7 @@ namespace octet {
         
         //smoothly move the player
         vec3 pos = player_node->get_position ();
-        vec3 target_pos = vec3 ((player_position.x () + 0.5f)*sx + cx, (player_position.y () + 0.5f)*sy + cy, 0.1);
+        vec3 target_pos = vec3 ((player_position.x ())*sx + cx, (player_position.y () )*sy + cy, 0.1);
         player_node->translate (15*(target_pos-pos).normalize()*((target_pos - pos).length ()>0.01? (target_pos - pos).length ():0)*dt);
       }
       float get_cx(){
@@ -562,6 +568,7 @@ namespace octet {
 
     void app_init () {
       srand (time (NULL));
+      set_viewport_size (520, 512);
 
       game_over_flag = 0;
 
@@ -572,14 +579,31 @@ namespace octet {
 
       //init fluid_mesh
       material *green = new material (vec4 (1, 0, 0, 1), new param_shader ("shaders/simple_color.vs", "shaders/simple_color.fs"));
-      the_mesh = new mesh_fluid (aabb (vec3 (0), vec3 (10)), ivec3 (grid_size, grid_size, 0));
+      the_mesh = new mesh_fluid (aabb (vec3 (0), vec3 (14)), ivec3 (grid_size, grid_size, 0));
       scene_node *node = new scene_node ();
       app_scene->add_child (node);
       app_scene->add_mesh_instance (new mesh_instance (node, the_mesh, green));
 
       the_mesh->set_room_mask (99);
 
-      //add boxes and walls
+      //todo: make rest players sprite's background transparent
+      //set up player
+      image *player_img = new image ("assets/projects/my_chamber/player.gif");
+      add_player (player_img, 90, 90);
+      health = 100;
+      health_bar = new mesh_sprite (vec3 (0), vec2 (the_mesh->get_sx ()*1.0f, the_mesh->get_aabb ().get_half_extent ().y ()*2.0f), mat4t ());
+      //std::cout <<"health bar size: "<< the_mesh->get_sx () << " " << the_mesh->get_aabb ().get_half_extent ().y ()*2.0f;
+      //todo: put color def outside, make a parameter
+      material *bar_mat = new material (vec4 (142 / 255., 77 / 255., 198 / 255., 0));
+      health_bar_node = new scene_node ();
+      health_bar_node->loadIdentity ();
+      health_bar_node->translate (
+        vec3 (the_mesh->get_cx () + the_mesh->get_aabb ().get_half_extent ().x () * 2 + the_mesh->get_sx (), the_mesh->get_cy () + the_mesh->get_aabb ().get_half_extent ().y (), 0.1)
+      );
+      app_scene->add_mesh_instance (new mesh_instance (health_bar_node, health_bar, bar_mat));
+
+      //add boxes and walls, calculate empty space
+      the_mesh->empty_space = 99 * 99;
       image *box_img = new image ("assets/projects/my_chamber/box.gif");
       image *wall_image = new image ("assets/projects/my_chamber/Rock.gif");
       for ( int i = 0; i<10; i++ ) {
@@ -594,21 +618,9 @@ namespace octet {
           add_box (box_img, box_params[0], box_params[1], box_params[2], true);
         }
       }
-      //todo: make rest players sprite's background transparent
-      //set up player
-      image *player_img = new image ("assets/projects/my_chamber/player.gif");
-      add_player (player_img, 90, 90);
-      health = 100;
-      health_bar = new mesh_sprite (vec3(0), vec2(the_mesh->get_sx()*1.0f, the_mesh->get_aabb().get_half_extent().y()*2.0f), mat4t());
-      //std::cout <<"health bar size: "<< the_mesh->get_sx () << " " << the_mesh->get_aabb ().get_half_extent ().y ()*2.0f;
-      //todo: put color def outside, make a parameter
-      material *bar_mat = new material (vec4(142/255., 77/255., 198/255., 0));
-      health_bar_node = new scene_node ();
-      health_bar_node->loadIdentity ();
-      health_bar_node->translate (
-        vec3 (the_mesh->get_cx()+the_mesh->get_aabb ().get_half_extent ().x () * 2 + the_mesh->get_sx (), the_mesh->get_cy ()+the_mesh->get_aabb().get_half_extent().y(), 0.1)
-          );
-      app_scene->add_mesh_instance (new mesh_instance (health_bar_node, health_bar, bar_mat));
+      std::cout << "empty space ====================" << the_mesh->empty_space << std::endl;
+
+      
       
       //set up score bar
       score_bar = new mesh_sprite (vec3 (0), vec2 (the_mesh->get_sx ()*1.0f, the_mesh->get_aabb ().get_half_extent ().y ()*2.0f), mat4t ());
@@ -618,6 +630,11 @@ namespace octet {
         vec3 (the_mesh->get_cx () +the_mesh->get_sx ()/2, the_mesh->get_cy () + the_mesh->get_aabb ().get_half_extent ().y (), 0.1)
       );
       app_scene->add_mesh_instance (new mesh_instance (score_bar_node, score_bar, bar_mat));
+
+      material *bg_mat = new material (vec4 (142 / 255., 77 / 255., 198 / 255., 0));
+      mesh_sprite* bg_sprite = new mesh_sprite (the_mesh->get_aabb().get_center(), the_mesh->get_aabb().get_half_extent().xy()*2+vec2(0.1), mat4t());
+      scene_node* bg_node = new scene_node ();
+      app_scene->add_mesh_instance (new mesh_instance (bg_node, bg_sprite, bg_mat));
 
     }
 
@@ -655,11 +672,10 @@ namespace octet {
       score_bar_node->loadIdentity ();
       score_bar_node->translate (
         vec3 (the_mesh->get_cx () + the_mesh->get_sx () / 2.0f,
-          score/(99*99)*the_mesh->get_aabb ().get_half_extent ().y () + the_mesh->get_cy (), 0.1f)
+          sqrt(score/(the_mesh->cell_count))*the_mesh->get_aabb ().get_half_extent ().y () + the_mesh->get_cy (), 0.1f)
       );
-      std::cout << "asd" << score / (99 * 99) << std::endl;
       
-      score_bar_node->scale (vec3 (1, score / (99*99), 1));
+      score_bar_node->scale (vec3 (1, sqrt(score / (the_mesh->cell_count)), 1));
     }
 
 
@@ -678,10 +694,10 @@ namespace octet {
       
       the_mesh->cell_count = 0;
       float dfs_result = the_mesh->run_dfs (99);
-      if ( dfs_result > 0) {
+      if ( dfs_result >= 0) {
         
         update_score (the_mesh->cell_count / (dfs_result + 1));
-        std::cout << "result: " << dfs_result << " cell couunt: " <<the_mesh->cell_count  << std::endl;
+        //std::cout << "result: " << dfs_result << " cell couunt: " <<the_mesh->cell_count  << std::endl;
         //game_over (new image ("assets/projects/my_chamber/lab_secured.gif"));
       }else{
         update_score (0);
@@ -696,6 +712,14 @@ namespace octet {
         the_mesh->move_player (99, -1, 0);
       } else if ( is_key_down (key_right) ) {
         the_mesh->move_player (99, +1, 0);
+      }
+      if( is_key_down (key_backspace) ){
+        app_init ();
+      }
+      if(is_key_down(key_alt)){
+        the_mesh->show_leaks = true;
+      }else{
+        the_mesh->show_leaks = false;
       }
       /*
       if ( is_key_down (key_up) ) {

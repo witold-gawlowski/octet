@@ -18,34 +18,59 @@ o View form the top, movable blocks
 * player gets defence as circle anround him
 ===============================================
 game:
-# use bfs to count percentile of map defended
++ use dfs to count percentile of map defended
 + health
-* player targets at saving the most of area  from being poluted:
++ player targets at saving the most of area  from being poluted:
 	-this target is important as it makes player enclose not only fluid,
 	 but also early poluted ares of the map
 + some randomized boxes not moving, with different texture
 + randomized levels
 * countdown
-# export all parameters to the beginning of the code
+
 + smoothly moving around the player
-* displaying score, lab secured, and game over
-# move boxes and player code from mesh
-# make the code nicely structured for marks and for me for later change
-# set window not resizable
-# create some music yo
-# use fmod for sounds
-# score bar on the left side: max score = whole area* no pollution
++ displaying score, lab secured, and game over
++ score bar on the left side: max score = whole area* no pollution
 
-
+==================================================
 clip:
 * movie with subsequent stages of work (thx to commits)
 * years of wars in the bg ;)
-==================================================
-* bug-feature: pushing the box creates a safe space from gas behind it :D
-* game end when there is no path from player to source, score screen:
+game:
+o bug-feature: pushing the box creates a safe space from gas behind it :D
+o game end when there is no path from player to source, score screen:
 	- bonus time
-	- pollution
+	- polution
 	- area 
 	- total score:
-* make the surrounding writings that describe what to do...
-* refine edges so its clear where is the leak
++ refine edges so its clear where is the leak
++ add sqrt to score
++ repair: score does not take into account space taken by boxes
++ hold alt to see leaked path and pause
+# add tab for help:
+	- you are in a room being filled with deadly gas, move boxes to stop it from spreading!
+	- score: sqrt(defended area / (pollution + 1))
+	- arrows to move
+	- alt for showing a leak and pausing
+	- backspace for restart
+	- healthbar right
+	- score bar left
+	- score appears only when you defended
+	- tell about leaky edges
+* export all parameters to the beginning of the code
+* move boxes and player code from the mesh code
+* make the code nicely structured for marks and for me for later change
+* set window not resizable
++ remove the bug with boxes randomizing at players position
+* make some chiptune msc
+* use fmod for sounds
+
+# add bg image
+	- add score scale on the bg img
+		* logarithmic scale
+	- caption: "hold tab for help" 
+	# add my highscore note at the side ;)
++ add restart button
+* remove memory leaks
+
+==========================================================
+* deliver
