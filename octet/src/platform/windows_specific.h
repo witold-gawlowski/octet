@@ -95,6 +95,8 @@ namespace octet {
     HGLRC gl_context;
     HWND window_handle;
 
+    
+
     void init_gl_context(HWND window_handle) {
       static const PIXELFORMATDESCRIPTOR pfd = { 
         sizeof(PIXELFORMATDESCRIPTOR),  //  size of this pfd  
@@ -141,7 +143,15 @@ namespace octet {
     app(int argc, char **argv) {
     }
 
-    void init() {
+    void GetDesktopResolution (int& horizontal, int& vertical) {
+      RECT desktop;
+      const HWND hDesktop = GetDesktopWindow ();
+      GetWindowRect (hDesktop, &desktop);
+      horizontal = desktop.right;
+      vertical = desktop.bottom;
+    }
+
+    void init(int resolution_x, int resolution_y, bool titlebar = true) {
       WSADATA wsa;
       WSAStartup(MAKEWORD(2,2), &wsa);
 
@@ -159,9 +169,12 @@ namespace octet {
       gl_context = 0;
      
       window_handle = CreateWindowW(L"MyClass", L"octet",
-        WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, 1200, 800,
+        WS_BORDER, CW_USEDEFAULT, CW_USEDEFAULT, resolution_x, resolution_y,
         NULL, NULL, wndclass.hInstance, (LPVOID)this
       );
+
+      if(!titlebar)
+        SetWindowLong (window_handle, GWL_STYLE, 0);
 
       map()[window_handle] = this;
 

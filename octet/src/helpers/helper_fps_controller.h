@@ -30,21 +30,21 @@ namespace octet { namespace helpers {
         float friction = 0.0f;
         if (the_app->is_key_down('A')) {
           player_node->activate();
-          player_node->apply_central_force(camera_node->get_x() * (-1000.0f));
+          player_node->apply_central_force(camera_node->get_x() * (-100.0f));
         } else if (the_app->is_key_down('D')) {
           player_node->activate();
-          player_node->apply_central_force(camera_node->get_x() * (+1000.0f));
+          player_node->apply_central_force(camera_node->get_x() * (+100.0f));
         } else if (the_app->is_key_down('W')) {
           player_node->activate();
-          player_node->apply_central_force(camera_node->get_z() * (-1000.0f));
+          player_node->apply_central_force(camera_node->get_z() * (-100.0f));
         } else if (the_app->is_key_down('S')) {
           player_node->activate();
-          player_node->apply_central_force(camera_node->get_z() * (+1000.0f));
+          player_node->apply_central_force(camera_node->get_z() * (+100.0f));
         } else {
           friction = 1.0f;
         }
         if (the_app->is_key_going_down(' ')) {
-          player_node->apply_central_force(camera_node->get_y() * (+10000.0f));
+          //player_node->apply_central_force(camera_node->get_y() * (+10000.0f));
         }
         player_node->set_friction(friction);
 

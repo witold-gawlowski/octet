@@ -16,7 +16,7 @@ namespace octet {
     void app_init() {
       app_scene = new visual_scene();
 
-      //importing collada canyon:
+      //importing canyon:
       resource_dict dict;
       if (!loader.load_xml("assets/projects/my_bridge/meshes/Canyon.dae")) {
         return;
@@ -33,6 +33,27 @@ namespace octet {
         app_scene->add_child(node);
         app_scene->add_mesh_instance(new mesh_instance(node, canyon, mat));
       }
+
+      //importing poles
+      
+      if ( !loader.load_xml ("assets/projects/my_bridge/meshes/poles.dae") ) {
+        return;
+      }
+      dict.reset ();
+      meshes.reset ();
+      loader.get_resources (dict);
+      dict.find_all (meshes, atom_mesh);
+      if ( meshes.size () ) {
+        material *mat = new material (vec4 (0.25f, 0.25f, 0.5f, 1));
+        mesh *pole = meshes[0]->get_mesh ();
+        scene_node *node = new scene_node ();
+        //bellow transformation needs to be done for any data that comes from blender to opengl. 
+        node->rotate (-90, vec3 (1, 0, 0));
+        app_scene->add_child (node);
+        app_scene->add_mesh_instance (new mesh_instance (node, pole, mat));
+      }
+
+
 
       //setting up camera, mouse helper and fps helper
       mouse_look_helper.init(this, 50.0f / 360.0f, false);
@@ -54,7 +75,7 @@ namespace octet {
 
       mesh_instance *mi = app_scene->add_shape(
         player_mat,
-        new mesh_sphere(vec3(0), player_radius),
+        new mesh_sphere(vec3(0), 0),
         new material(vec4(0, 0, 1, 1)),
         true, player_mass,
         new btCapsuleShape(0.95f, player_height)
