@@ -1,6 +1,7 @@
 game:
 * blackout screen when falling
 4 night, stars skybox
+	* could be faked by just black or dark green (?) color
 1 x-rope bridge + collisions
  	. _____ . _____ .
 	 \     / \     /

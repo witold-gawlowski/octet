@@ -1,6 +1,10 @@
 namespace octet {
 
   class my_bridge : public app {
+    static vec3 pos (btRigidBody* rb) {
+      btVector3 position = rb->getCenterOfMassPosition ();
+      return vec3 (position.x (), position.y (), position.z ());
+    }
     class segment {
       //delarations at the bottom of this file
       const static float bridge_width;
@@ -9,6 +13,9 @@ namespace octet {
     public:
       struct linker {
         btRigidBody *ul, *ur, *dl, *dr;
+        linker () { ul = ur = dl = dr = nullptr; }
+        linker (btRigidBody *ul, btRigidBody *ur, btRigidBody *dl, btRigidBody *dr) : ul (ul), ur(ur), dl(dl), dr(dr){}
+        
       };
 
     private:
@@ -19,7 +26,8 @@ namespace octet {
     public:
       explicit segment (linker l, vec3 dir, visual_scene* scene) : backward(l), dir(dir), app_scene(scene) {
         material *red = new material (vec4 (1, 0, 0, 1));
-        mesh_instance *plank = app_scene->add_shape (mat4t().translate(vec3(-1, -5, -7)), new mesh_box (vec3 (2)), red,false);
+        mesh_instance *plank = app_scene->add_shape (mat4t().translate(pos(l.dl)+vec3(bridge_width/2.0f, 0, -segment_length*(0.25+1/16.))),
+          new mesh_box (vec3 (bridge_width/2.0f, 0.01f, segment_length/8)), red,false);
       }
 
     };
@@ -142,7 +150,12 @@ namespace octet {
       mesh_instance *trd = app_scene->add_shape (mat4t ().translate (trd_pos), new mesh_box (vec3 (0.07)), red, false);
       mesh_instance *drd = app_scene->add_shape (mat4t ().translate (drd_pos), new mesh_box (vec3 (0.07)), red, false);
       mesh_instance *dld = app_scene->add_shape (mat4t ().translate (dld_pos), new mesh_box (vec3 (0.07)), red, false);
-
+      segment *seg = new segment(segment::linker(tld->get_node()->get_rigid_body(), 
+        trd->get_node ()->get_rigid_body (),
+          dld->get_node ()->get_rigid_body (),
+            drd->get_node ()->get_rigid_body ()),
+              vec3(0, 0, -1), app_scene);
+      
 
       //now read, add and bind bridge elements3 
     //  btVector3 axisA(1.0f, 0.0f, 0.0f);
@@ -216,7 +229,8 @@ namespace octet {
       app_scene->render((float)vx / vy);
     }
   };
-  const float my_bridge::segment::bridge_width = 1.0f;
+  //its the aproximate distance between the poles
+  const float my_bridge::segment::bridge_width = 1.31f -0.44f;
   const float my_bridge::segment::bridge_height = bridge_width * 1.618;
   const float my_bridge::segment::segment_length = bridge_width;
 }
