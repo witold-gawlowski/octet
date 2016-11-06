@@ -1,11 +1,33 @@
+game:
 * blackout screen when falling
-3 night, stars skybox
-1 hearable voidy sound of vacuum or smth (fmod)
+4 night, stars skybox
+1 x-rope bridge + collisions
+ 	. ____ . _____ .
+	 \     / \     /
+	  \   /   \   /
+	   \ /     \ /
+	    .	    .
+	   / \     / \
+	  /   \   /   \
+	./_ _ _\./_ _ _\.
+	
+	* add poles
+	* make player smaller, bridge "longer"
+	* refine the canyon collisions
+	* not in blender, procedural generation for resizing
+
+2 hearable voidy sound of vacuum or smth (fmod)
 	# breath loudness peaks in the middle of the bridge
-2 callision callback triggering character breathing when stepping over the bridge
+3 callision callback triggering character breathing when stepping over the bridge
 	* player starts in the cave and gets his voice louder as he enters the ledge
 # shadow mapping
 	# light, sea-blue, sunlit tops
 	# black void beneath
-# make player smaller, bridge "longer"
-	# refine the canyon collisions
+
+# add poles
+
+clip + readme:
+* video of subsequent stages
+* clip: blender tool demnostration on first version
+====================================
+# make a build and send someone

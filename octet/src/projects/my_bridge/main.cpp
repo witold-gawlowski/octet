@@ -21,7 +21,9 @@ int main(int argc, char **argv) {
 
   // our application.
   octet::my_bridge app(argc, argv);
-  app.init();
+  int resolution_x, resolution_y;
+  app.GetDesktopResolution (resolution_x, resolution_y);
+  app.init(resolution_x, resolution_y, false);
 
   // open windows
   octet::app::run_all_apps();
