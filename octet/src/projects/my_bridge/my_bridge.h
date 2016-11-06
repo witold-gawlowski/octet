@@ -1,18 +1,50 @@
 namespace octet {
+
   class my_bridge : public app {
+    class segment {
+      //delarations at the bottom of this file
+      const static float bridge_width;
+      const static float bridge_height;
+      const static float segment_length;
+    public:
+      struct linker {
+        btRigidBody *ul, *ur, *dl, *dr;
+      };
+
+    private:
+      linker forward, backward;
+      vec3 dir;
+      ref<visual_scene> app_scene;
+
+    public:
+      explicit segment (linker l, vec3 dir, visual_scene* scene) : backward(l), dir(dir), app_scene(scene) {
+        material *red = new material (vec4 (1, 0, 0, 1));
+        mesh_instance *plank = app_scene->add_shape (mat4t().translate(vec3(-1, -5, -7)), new mesh_box (vec3 (2)), red,false);
+      }
+
+    };
+
     ref<visual_scene> app_scene;
     ref<camera_instance> the_camera;
     mouse_look mouse_look_helper;
     ref<scene_node> player_node;
     helper_fps_controller fps_helper;
     collada_builder loader; 
-
+   
   public:
     my_bridge(int argc, char **argv) : app(argc, argv) {
     }
 
     ~my_bridge() {
     }
+    
+
+   void make_join(vec3 pos){
+      
+    }
+    
+    
+
     void app_init() {
       app_scene = new visual_scene();
 
@@ -56,19 +88,20 @@ namespace octet {
 
 
       //setting up camera, mouse helper and fps helper
-      mouse_look_helper.init(this, 50.0f / 360.0f, false);
+      mouse_look_helper.init(this, 35.0f / 360.0f, false);
       fps_helper.init(this);
       app_scene->create_default_camera_and_lights();
       the_camera = app_scene->get_camera_instance(0);
       the_camera->get_node()->loadIdentity();
       the_camera->set_far_plane(10000);
-      the_camera->set_near_plane(0.4f);
+      the_camera->set_near_plane(0.3f);
+      
+
 
 
       //preparing player
-      float player_height = 1.83f;
-      float player_radius = 0.35f;
-      float player_mass = 10.0f;
+      float player_height = 0.0f;
+      float player_mass = 0.5f;
       mat4t player_mat;
       player_mat.loadIdentity();
       player_mat.translate(0, 5, 16);
@@ -78,12 +111,12 @@ namespace octet {
         new mesh_sphere(vec3(0), 0),
         new material(vec4(0, 0, 1, 1)),
         true, player_mass,
-        new btCapsuleShape(0.95f, player_height)
+        new btCapsuleShape(0.05f, player_height)
       );
       player_node = mi->get_node();
 
       //read and add world colliders
-      material *red = new material(vec4(1, 0, 0, 1));
+      material *collider_mat = new material(vec4(0.15, 0.15, 0.25, 1));
       std::ifstream ifs("box_list.csv");
       int n;
       //rotation via quaternion 
@@ -96,43 +129,54 @@ namespace octet {
         mat4t mat(rot);
         mat.rotateX(90);
         mat.translate(pos[0], pos[1], pos[2]);
-        mesh_instance *col = app_scene->add_shape(mat, new mesh_box(vec3(scl[0], scl[1], scl[2])), red, false);
+        mesh_instance *col = app_scene->add_shape(mat, new mesh_box(vec3(scl[0], scl[1], scl[2])), collider_mat, false);
         //std::cout << pos[0] << " " << rot[1] << " " << scl[2] << std::endl;
       }
 
-      //now read, add and bind bridge elements3
-      btVector3 axisA(1.0f, 0.0f, 0.0f);
-      btVector3 axisB(1.0f, 0.0f, 0.0f);
-      btVector3 pivotA(0, -0.68f, 0.f);
-      btVector3 pivotB(0, 0.68f, 0.f);
-      btHingeConstraint *bridge_hinge;
-      mesh_instance *previous_col = NULL;
-      ifs >> n;
-      for (int i = 0; i < n; i++) {
-        ifs >> pos[0] >> pos[1] >> pos[2];
-        ifs >> rot[0] >> rot[1] >> rot[2] >> rot[3];
-        ifs >> scl[0] >> scl[1] >> scl[2];
-        mat4t mat(rot);
-        mat.rotateX(90);
-        mat.translate(pos[0], pos[1], pos[2]);
-        mesh_instance *col = app_scene->add_shape(mat, new mesh_box(vec3(scl[0], scl[1], scl[2])), red, (i==0||i==n-1) ? false : true, 5.0f);
-        btRigidBody *rbA; 
-        btRigidBody *rbB = col->get_node()->get_rigid_body();
-        rbB->setDamping(0.1f, 0.1f);
-        rbB->applyDamping(0.15f);
-        //printf("%d bool: %d\n", previous_col, previous_col != NULL);
-        if (previous_col) {
-          rbA = previous_col->get_node()->get_rigid_body();
-          bridge_hinge = new btHingeConstraint(*rbA, *rbB, pivotA, pivotB, axisA, axisB);
-          bridge_hinge->setLimit(-SIMD_HALF_PI * 0.5f, SIMD_HALF_PI * 0.5f);
-          //what is CRP and ERP here: http://bulletphysics.org/mediawiki-1.5.8/index.php/Definitions
-          bridge_hinge->setParam(BT_CONSTRAINT_STOP_ERP, 0.8);
-          bridge_hinge->setParam(BT_CONSTRAINT_STOP_CFM, 0.1);  
-          bridge_hinge->setParam(BT_CONSTRAINT_CFM, 0.05);
-          app_scene->add_my_hinge(bridge_hinge);
-        }
-        previous_col = col;
-      }
+      //generate bridge
+      //mesh_instance *col = app_scene->add_shape (mat4t().translate(vec3(-1, -5, -7)), new mesh_box (vec3 (2)), red,false);
+      //player-side dockers
+      vec3 tld_pos (0.44f, 0.31, 12.85), trd_pos (1.31f, 0.31, 12.85), drd_pos (1.31f, -0.31, 12.85), dld_pos (0.44f, -0.31, 12.85);
+      material *red = new material (vec4 (1, 0, 0, 1));
+      mesh_instance *tld = app_scene->add_shape (mat4t ().translate (tld_pos), new mesh_box (vec3 (0.07)), red, false);
+      mesh_instance *trd = app_scene->add_shape (mat4t ().translate (trd_pos), new mesh_box (vec3 (0.07)), red, false);
+      mesh_instance *drd = app_scene->add_shape (mat4t ().translate (drd_pos), new mesh_box (vec3 (0.07)), red, false);
+      mesh_instance *dld = app_scene->add_shape (mat4t ().translate (dld_pos), new mesh_box (vec3 (0.07)), red, false);
+
+
+      //now read, add and bind bridge elements3 
+    //  btVector3 axisA(1.0f, 0.0f, 0.0f);
+    //  btVector3 axisB(1.0f, 0.0f, 0.0f);
+    //  btVector3 pivotA(0, -0.68f, 0.f);
+    //  btVector3 pivotB(0, 0.68f, 0.f);
+    //  btHingeConstraint *bridge_hinge;
+    //  mesh_instance *previous_col = NULL;
+    //  ifs >> n;
+    //  for (int i = 0; i < n; i++) {
+    //    ifs >> pos[0] >> pos[1] >> pos[2];
+    //    ifs >> rot[0] >> rot[1] >> rot[2] >> rot[3];
+    //    ifs >> scl[0] >> scl[1] >> scl[2];
+    //    mat4t mat(rot);
+    //    mat.rotateX(90);
+    //    mat.translate(pos[0], pos[1], pos[2]);
+    //    mesh_instance *col = app_scene->add_shape(mat, new mesh_box(vec3(scl[0], scl[1], scl[2])), red, (i==0||i==n-1) ? false : true, 5.0f);
+    //    btRigidBody *rbA; 
+    //    btRigidBody *rbB = col->get_node()->get_rigid_body();
+    //    rbB->setDamping(0.1f, 0.1f);
+    //    rbB->applyDamping(0.15f);
+    //    //printf("%d bool: %d\n", previous_col, previous_col != NULL);
+    //    if (previous_col) {
+    //      rbA = previous_col->get_node()->get_rigid_body();
+    //      bridge_hinge = new btHingeConstraint(*rbA, *rbB, pivotA, pivotB, axisA, axisB);
+    //      bridge_hinge->setLimit(-SIMD_HALF_PI * 0.5f, SIMD_HALF_PI * 0.5f);
+    //      //what is CRP and ERP here: http://bulletphysics.org/mediawiki-1.5.8/index.php/Definitions
+    //      bridge_hinge->setParam(BT_CONSTRAINT_STOP_ERP, 0.8);
+    //      bridge_hinge->setParam(BT_CONSTRAINT_STOP_CFM, 0.1);  
+    //      bridge_hinge->setParam(BT_CONSTRAINT_CFM, 0.05);
+    //      app_scene->add_my_hinge(bridge_hinge);
+    //    }
+    //    previous_col = col;
+    //  }
     }
 
 
@@ -172,4 +216,7 @@ namespace octet {
       app_scene->render((float)vx / vy);
     }
   };
+  const float my_bridge::segment::bridge_width = 1.0f;
+  const float my_bridge::segment::bridge_height = bridge_width * 1.618;
+  const float my_bridge::segment::segment_length = bridge_width;
 }

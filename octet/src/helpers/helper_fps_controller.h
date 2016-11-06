@@ -30,26 +30,27 @@ namespace octet { namespace helpers {
         float friction = 0.0f;
         if (the_app->is_key_down('A')) {
           player_node->activate();
-          player_node->apply_central_force(camera_node->get_x() * (-100.0f));
+          player_node->apply_central_force(camera_node->get_x() * (-2.0f));
         } else if (the_app->is_key_down('D')) {
           player_node->activate();
-          player_node->apply_central_force(camera_node->get_x() * (+100.0f));
+          player_node->apply_central_force(camera_node->get_x() * (+2.0f));
         } else if (the_app->is_key_down('W')) {
           player_node->activate();
-          player_node->apply_central_force(camera_node->get_z() * (-100.0f));
+          player_node->apply_central_force(camera_node->get_z() * (-2.0f));
         } else if (the_app->is_key_down('S')) {
           player_node->activate();
-          player_node->apply_central_force(camera_node->get_z() * (+100.0f));
+          player_node->apply_central_force(camera_node->get_z() * (+2.0f));
         } else {
           friction = 1.0f;
         }
         if (the_app->is_key_going_down(' ')) {
+          std::cout << (player_node->get_position () + vec3 (0, 0.31f, 0) ).xyz1 () << std::endl;
           //player_node->apply_central_force(camera_node->get_y() * (+10000.0f));
         }
         player_node->set_friction(friction);
 
         mat4t &camera_to_world = camera_node->access_nodeToParent();
-        camera_to_world.w() = (player_node->get_position() + vec3(0, 1.25f , 0) ).xyz1();
+        camera_to_world.w() = (player_node->get_position() + vec3(0, 0.31f , 0) ).xyz1();
       #endif
     }
   };
