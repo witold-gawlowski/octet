@@ -5,7 +5,7 @@ namespace octet {
     mouse_look mouse_look_helper;
     ref<scene_node> player_node;
     helper_fps_controller fps_helper;
-    collada_builder loader;
+    collada_builder loader; 
 
   public:
     my_bridge(int argc, char **argv) : app(argc, argv) {
