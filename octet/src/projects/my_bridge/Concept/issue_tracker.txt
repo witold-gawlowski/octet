@@ -2,7 +2,11 @@ game:
 * blackout screen when falling
 4 night, stars skybox
 1 x-rope bridge + collisions
+<<<<<<< HEAD
  	. _____ . _____ .
+=======
+ 	. ____ . _____ .
+>>>>>>> 17383660549058e8b7fbc7816017955126899fbf
 	 \     / \     /
 	  \   /   \   /
 	   \ /     \ /
@@ -11,12 +15,18 @@ game:
 	  /   \   /   \
 	./_ _ _\./_ _ _\.
 	
+<<<<<<< HEAD
 	
+=======
+>>>>>>> 17383660549058e8b7fbc7816017955126899fbf
 	* add poles
 	* make player smaller, bridge "longer"
 	* refine the canyon collisions
 	* not in blender, procedural generation for resizing
+<<<<<<< HEAD
 	* can create a longer, straight bridge and shorten the distance between sides immediately
+=======
+>>>>>>> 17383660549058e8b7fbc7816017955126899fbf
 
 2 hearable voidy sound of vacuum or smth (fmod)
 	# breath loudness peaks in the middle of the bridge
