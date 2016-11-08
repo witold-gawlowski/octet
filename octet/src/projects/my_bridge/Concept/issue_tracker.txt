@@ -30,6 +30,8 @@ game:
 	# light, sea-blue, sunlit tops
 	# black void beneath
 
+# shader that makes bridge disapper hen player is on the ledge and appear when he steps on it. the poles indicate that there is a bridge
+
 # add poles
 
 clip + readme:
