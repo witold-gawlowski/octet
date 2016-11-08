@@ -297,8 +297,8 @@ namespace octet { namespace scene {
     }
 
     //helper to add a hinge constraint
-    void add_my_hinge(btHingeConstraint *hc) {
-      world->addConstraint(hc);
+    void add_constraint(btTypedConstraint *hc) {
+      world->addConstraint(hc, true);
     }
 
     /// helper to add a mesh to a scene and also to create the corresponding physics object

@@ -24,16 +24,40 @@ game:
 
 2 hearable voidy sound of vacuum or smth (fmod)
 	# breath loudness peaks in the middle of the bridge
+	# wind howling
+
 3 callision callback triggering character breathing when stepping over the bridge
 	* player starts in the cave and gets his voice louder as he enters the ledge
 # shadow mapping
 	# light, sea-blue, sunlit tops
 	# black void beneath
 
-# add poles
+# make blender rock nicer
+	# refine blender models using mesh effects to make it look more like rock
+	# make canyon bend properly so the end is not visible
+	# plug the holes in it
++ add poles
+
+* when you cross the bridge the atmosphere gradually changes to ligher
+	* initially dark, preferably with some volumetric 
+	* the change happens only on the last steps
+	* skybox change  to stars on the blue
+	* rock color change
+	* shader change
+	* music change
+	* bridge breakes 
+ (this idea is perfect for application to TGC)
 
 clip + readme:
 * video of subsequent stages
 * clip: blender tool demnostration on first version
 ====================================
+problems with phyisics:
+	* try to implement basic constraints in physics demo: it seems to work there
+	* try just changing my old bridge towards more complicated rope-bridge
+		* change hinges for spring 6dofs 
+		* make top joints from positions of blender-placed planks
+
+
+=====================================
 # make a build and send someone
