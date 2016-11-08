@@ -32,6 +32,7 @@ game:
 	# light, sea-blue, sunlit tops
 	# black void beneath
 
+
 # make blender rock nicer
 	# refine blender models using mesh effects to make it look more like rock
 	# make canyon bend properly so the end is not visible
@@ -48,10 +49,15 @@ game:
 	* bridge breakes 
  (this idea is perfect for application to TGC)
 
+# shader that makes bridge disapper hen player is on the ledge and appear when he steps on it. the poles indicate that there is a bridge
+
+# add poles
+
+
 clip + readme:
 * video of subsequent stages
 * clip: blender tool demnostration on first version
-====================================
+
 problems with phyisics:
 	* try to implement basic constraints in physics demo: it seems to work there
 	* try just changing my old bridge towards more complicated rope-bridge
@@ -59,5 +65,8 @@ problems with phyisics:
 		* make top joints from positions of blender-placed planks
 
 
-=====================================
+
+
+=======
 # make a build and send someone
+
