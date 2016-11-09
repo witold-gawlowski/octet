@@ -7,6 +7,7 @@
 * Fullscreen, no title bar mode
 * bpy (blender API for python) [script](https://github.com/witold-gawlowski/octet/blob/Tools_and_Middleware_1/octet/assets/projects/my_bridge/scripts/box_tracker.py) that reads the scene and writes the bridge and world colliders elements to the csv file
 * reading world colliders and bridge elements from csv file in Octet code
+* flying mode use to conveniently move around the scene for debug reasons
 
 ## Goals and inspirations 
 
