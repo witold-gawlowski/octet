@@ -32,7 +32,7 @@ Although the new code architecture worked properly, the physics-engine problems 
 * Bullet library is poorly documented and its not easy to find information on the internet too. One has to basically undestand the implementation of api to be able to use it proficiently.
 * Using physics engines is difficult (with a slight chance that I have been just doing something really wrong).
 
-## What I have learned:
+## What I have learned
 * Python-blender scripting is extremly effective for making tools. It is also convenient. E.g.: python API visible when hovering over any blender GUI element. 
 * Writing code comments about what i have learned about library i am using is important. Its not easy to remember the functional definition for some variable, that you have come up after long time of reversed-engineering.
 * During my attempts to build more complex rope bridge I mastered 90% of btGeneric6DOFConstraint API's which I feel very proud of. 
