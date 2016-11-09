@@ -14,7 +14,7 @@ The main goal of the project was to create a bullet-phyiscs demo. We were given 
 
 ![inspirtation](https://github.com/witold-gawlowski/octet/blob/Tools_and_Middleware_1/octet/src/projects/my_bridge/Concept/14446003_1212966025441859_1981789854985566161_n.jpg) 
 
-For that I needed a canyon mesh. Initially I wanted to create it myself and learn blender as a side-effect but decided to ask on the facebook group first. Martin Skarregaard has answered me and we started to collaborate. I have created a story-board for him: 
+For that I needed a canyon mesh. Initially I wanted to create it myself and learn blender as a side-effect but decided to ask on our facebook group first. Martin Skarregaard has answered me and we started to collaborate. I have created a story-board for him: 
 
 ![](https://github.com/witold-gawlowski/octet/blob/Tools_and_Middleware_1/octet/src/projects/my_bridge/Concept/canyon%20mesh%20specification.jpg)
 
