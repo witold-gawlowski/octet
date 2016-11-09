@@ -19,9 +19,6 @@ For that I needed a canyon mesh. Initially I wanted to create it myself and lear
 
 ![](https://github.com/witold-gawlowski/octet/blob/Tools_and_Middleware_1/octet/src/projects/my_bridge/Concept/canyon%20mesh%20specification.jpg)
 
-
-=======
-I was happy with Martin's work, although many things didn't match my specification. Also some things that I thought were obvious were not included.
 The Canyon he scuplted is the one visible on the video linked later in this readme. 
 
 ## Post-mortem
