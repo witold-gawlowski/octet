@@ -1,6 +1,6 @@
 # my_bridge: Tools and Middleware Project I
 
-## Final project Features:
+## Final project Features
 * Displaying Collada mesh of the canyon created by Martin Skarregard.
 * Bullet physics bridge.
 * Octet FPS controller
