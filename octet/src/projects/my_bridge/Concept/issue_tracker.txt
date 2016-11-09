@@ -37,7 +37,12 @@ game:
 	# refine blender models using mesh effects to make it look more like rock
 	# make canyon bend properly so the end is not visible
 	# plug the holes in it
-+ add poles
+
+
+=======
+
+# shader making color darker with depth 
+
 
 * when you cross the bridge the atmosphere gradually changes to ligher
 	* initially dark, preferably with some volumetric 
@@ -51,8 +56,8 @@ game:
 
 # shader that makes bridge disapper hen player is on the ledge and appear when he steps on it. the poles indicate that there is a bridge
 
-# add poles
 
+=======
 
 clip + readme:
 * video of subsequent stages
