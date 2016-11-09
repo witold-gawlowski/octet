@@ -53,5 +53,5 @@ The video with the outcome of our work could be found [here](https://www.youtube
 Hopefully I will find some time to add some of those for my portfolio. 
 
 The commit, that I would like to be marked upon is [here](https://github.com/witold-gawlowski/octet/tree/e4f9d0dff4dcd4b0e8cb072813f0d4e0aed31ad5).
-The tip of the branch, althought is not working, includes a lot of work: refactored, object oriented code among other things. The thing that is not working is physics.
+The tip of the branch is not working, though it includes a lot of work: refactored, object oriented code among other things. The thing that is not working is physics.
 
