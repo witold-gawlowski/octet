@@ -1,12 +1,5 @@
 # my_bridge: Tools and Middleware Project I
 
-Final project code Features:
-* Collada mesh of the canyon created by Martin Skarregard.
-* Bullet physics bridge:
-	* bt
-
-The core goal of the project was to create a bullet-phyiscs demo. Our lecturer - Andy Thomason suggested building a rope bridge. I liked the idea as it fitted the concept one of my projects I wanted to realize: an experience of a canyon: I have found this picture somewhere on the web and wanted to make a game where you could explore it. 
-
 ## Final project Features:
 * Displaying Collada mesh of the canyon created by Martin Skarregard.
 * Bullet physics bridge.
@@ -25,30 +18,7 @@ For that I needed a canyon mesh. Initially I wanted to create it myself and lear
 
 ![](https://github.com/witold-gawlowski/octet/blob/Tools_and_Middleware_1/octet/src/projects/my_bridge/Concept/canyon%20mesh%20specification.jpg)
 
-I was happy with Martins work although many things didn't match my specification. Also some things that I thought were obvious were not included.
- 
-I have created much less content for this project than I have initially planned to. Informal backlog featuring ideas and technical problem encountered during the project can be found in [issue_track.txt file](https://github.com/witold-gawlowski/octet/blob/Tools_and_Middleware_1/octet/src/projects/my_bridge/Concept/issue_tracker.txt). There are two reasons for this: 
 
-
-i got lost in the second assignement
-
-After finishing my second assigment i had 2 days to make more interesting rope-brigdge. I have reworked the wole code architecture, made it object oriented (bridge was to be consisting of multiple instances of segment class)
-
-Although the new code architecture worked properly, the physics-engine problems were very severe, the parts were bouncing and wobbling for the reason i have not yet found out. I have started to build same bridge directly in bullet3's examples code and it has been working so far. This gives me a starting point for further investigation. 
-
-Problems I encoutered:
-* Bullet library is poorly documented and its not easy to find information on the internet too. One has to basically undestand the implementation of api to be able to use it proficiently.
-* Using physics engines is difficult(with a slight chance that I have been just doing something really wrong).
-
-
-What I have learned:
-* When you specify a task for someone you need to point out every detail that is significant. Ex. If you want proportions on the model to be 3:4 you need it point it out, not just draw it 3:4.
-
-The video with the outcome of our work could be found [here][https://www.youtube.com/watch?v=uHrpnjAkioI]. I like the atmosphere result of the project although I am unstisfied with the amout of features I was able to implement. The elements missing the most for me are:
-* fmod sound effects
-* skybox with stars
-* colliders for the walls of the caves
-* 
 =======
 I was happy with Martins work, although many things didn't match my specification. Also some things that I thought were obvious were not included.
 The Canyon he scuplted is the one visible on the video linked later in this readme. 
