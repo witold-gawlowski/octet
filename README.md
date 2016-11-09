@@ -1,16 +1,12 @@
 # my_bridge: Tools and Middleware Project I
 
-
-<<<<<<< Updated upstream
-todo: include commits
-
 Final project code Features:
 * Collada mesh of the canyon created by Martin Skarregard.
 * Bullet physics bridge:
 	* bt
 
 The core goal of the project was to create a bullet-phyiscs demo. Our lecturer - Andy Thomason suggested building a rope bridge. I liked the idea as it fitted the concept one of my projects I wanted to realize: an experience of a canyon: I have found this picture somewhere on the web and wanted to make a game where you could explore it. 
-=======
+
 ## Final project Features:
 * Displaying Collada mesh of the canyon created by Martin Skarregard.
 * Bullet physics bridge.
@@ -21,7 +17,6 @@ The core goal of the project was to create a bullet-phyiscs demo. Our lecturer -
 
 ## Goals and inspirations 
 
- Goals and inspirations
 The main goal of the project was to create a bullet-phyiscs demo. We were given the idea of builing a rope bridge. I liked it as it fitted the frames of of one of the projects I wanted to realize: an experience of a canyon. I have come a cross the idea for a canyon projecet when due to following graphics that I've found on the internet and imagined to be nice idea to make a game where you could explore it. 
 
 ![inspirtation](https://github.com/witold-gawlowski/octet/blob/Tools_and_Middleware_1/octet/src/projects/my_bridge/Concept/14446003_1212966025441859_1981789854985566161_n.jpg) 
