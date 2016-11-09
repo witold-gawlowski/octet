@@ -1,4 +1,25 @@
 namespace octet {
+
+  btHingeConstraint* break_hinge;
+
+  bool my_callback (
+    btManifoldPoint& cp,
+    const btCollisionObjectWrapper* colObj0,
+    int partId0,
+    int index0,
+    const btCollisionObjectWrapper* colObj1,
+    int partId1,
+    int index1) {
+
+    if ( strcmp(colObj0->getCollisionShape ()->getName (), "CapsuleShape")==0) {
+      break_hinge->setEnabled (false);
+    }
+
+    std::cout << "break! " << colObj0->getCollisionShape ()->getName () << " " << colObj1->getCollisionShape ()->getName () << std::endl;
+
+    return false;
+  }
+
   class my_bridge : public app {
     ref<visual_scene> app_scene;
     ref<camera_instance> the_camera;
@@ -6,6 +27,9 @@ namespace octet {
     ref<scene_node> player_node;
     helper_fps_controller fps_helper;
     collada_builder loader; 
+    btRigidBody* break_plank;
+   
+
 
   public:
     my_bridge(int argc, char **argv) : app(argc, argv) {
@@ -14,6 +38,7 @@ namespace octet {
     ~my_bridge() {
     }
     void app_init() {
+      gContactAddedCallback = my_callback;
       app_scene = new visual_scene();
 
       //importing canyon:
@@ -120,6 +145,12 @@ namespace octet {
         btRigidBody *rbB = col->get_node()->get_rigid_body();
         rbB->setDamping(0.1f, 0.1f);
         rbB->applyDamping(0.15f);
+
+        if(i==n/2){
+          rbB->setCollisionFlags (rbB->getCollisionFlags () | btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
+          break_hinge = bridge_hinge;
+        }
+
         //printf("%d bool: %d\n", previous_col, previous_col != NULL);
         if (previous_col) {
           rbA = previous_col->get_node()->get_rigid_body();
