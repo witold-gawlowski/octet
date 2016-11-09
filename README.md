@@ -40,7 +40,8 @@ Although the new code architecture worked properly, the physics-engine problems 
 * During my attempts to build more complex rope bridge I mastered 90% of btGeneric6DOFConstraint API's which I feel very proud of. 
 * When you specify a task you need to point out every detail that is significant. Ex. If you want proportions on the model to be 3:4 you need it point it out, not just draw it 3:4 and this is also a lot of work so unless you have a reason its better to do it yourself. 
 
-## The video with the outcome of our work could be found [here][https://www.youtube.com/watch?v=uHrpnjAkioI]. I like the atmosphere result of the project although I am unstisfied with the amount of features I was able to implement. The elements missing the most for me are:
+## Video, wishes, regrests...
+The video with the outcome of our work could be found [here](https://www.youtube.com/watch?v=uHrpnjAkioI). I like the atmosphere result of the project although I am unstisfied with the amount of features I was able to implement. The elements missing the most for me are:
 * fmod sound effects (the sounds in youtube vidoe were added throught video editing)
 * skybox with stars
 * colliders for the walls of the caves
