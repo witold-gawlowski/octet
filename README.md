@@ -1,18 +1,50 @@
 #my_chamber
 
-###Intro to game programming Project I
+### "Chamber" game using fluid simulation.
 
-Add outline file. 
+[Gameplay video](https://www.youtube.com/watch?v=3NrM0mTncqI)
 
-The idea for a project was to use Octet's implementation of fluid dynamics to create simple 2D game:
-Key points:
-  * player moving around a room with movable boxes (by pushing), 
-  * boxes block the gas flow
-  * aim of the game: to stop the gas from spreading by enclosing it withing area that is bounded by room's walls and boxes. Player is successfull upon "defenging" given percentile of area of whole room. 
+> This project is a modification of Andy Thomasson's implementation of well known Jos Stams's paper about fluid mechanics.
+> In the original version the fundamental gas propagation is implemented. My work expands on interaction with boxes.
+> Specifically it adds:
+> * Fluid Drag Begind the object
+> * Pushing fluid in from of a moving object
+> * Box random Generation.
+> * Player character, character movement, health decreas upon gas interaction
+> * Pushing boxes around with 
+> * Blocking fluid with box volumes.
+> * Visual feedback on "leaks": unblocked paths between the player square
+> * Simple GUI
+> * Score calculation
 
-Initially I tried to implement to add boxes as sprite class instances adopted from another demo: *example_invaderers*. It turned out that this was not possible as sprite drawing pipline was not meant to use along meshes. To deal with that I have created *mesh_sprite* class, representing a simple mesh consisting of two triangles forming a rectangle. The mesh boundaries were to be mapped to fluid grid and processed.
+## 
+I have tracked the progress of the project in "outline" file available [here](https://github.com/witold-gawlowski/octet/blob/Intro_to_game_programming_1/octet/src/projects/my_chamber/Concept/Outline.txt).
 
-To simulate fluid-box interaction I've implemented [my_boundary](https://gist.github.com/witold-gawlowski/3b2db97697c5b3f577355a791d678593) function. Version of the code optimized for one big box worked O.K. but unfortunately any more boxes were fatal for the performance.
-Therefore I decided to resign from mesh boxes mapped to fluid grid (which was the expensive part) and represent boxes directly in the grid coordinates.
+## Player-box interaction
+I the box grid is an array that stores the index of a box occupying a given position. When players trys to walk over it, the function move_box with boxes index is called triggering 
+all necessary changes. 
 
+## Visual feedback for leaks.
+I determine if the player is separated from the fluid source, as well as the separated area, using depth first seach algorithm (DFS). With DFS implemented it was easy to visualize
+a path that DFS travels when it reches the source. This is sometimes helpfull when its hard to spot the place where the created bareer is leaking. 
+
+## Fluid-box interaction
+To simulate the interaction of dynamic elements with gas I have implemented several interaction mechanisms:
+1. Fluid rebound: I have adopted the rebound from chamber's barriers to the dynamic barriers of boxes.
+2. Fluid drag behind the boxes: I add manually some values to the velocity fields behind player.
+3. Gas accumulation in front of a moving object: I "push" the values of the fluid intensity in front of a moving cube.
+
+## Game mechanics
+
+I have arranged implemented fluid interaction into a simple game where player is to stop the biggest possible area from being polluted while staying alive
+(player looses health according to pollution intensity at the given point). Score is calculated as
+
+> (area separated from fluid source)/(polution in separated area + 1).
+
+I add 1 to the denominator to prevent division by 0 and also, in case of no pollution the score is just area separated from fluid.
+Player is assigned zero score if there is a path from fluid source to the player using non-diagonal edges.
+
+## Summary
+The project started to went on really quick when I have solved some performance problems caused by using vector overlay over data (instead of accessing the data directly).
+I have greatly enjoyed adopinng the simulation for interaction, Jos Stams paper as well as the design of the little game's mechanics. Overall it was a great project to work on!
 
