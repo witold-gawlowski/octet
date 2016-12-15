@@ -1,7 +1,9 @@
-#my_chamber
+# "The Chamber"
 
-###Intro to game programming Project I
+## [Gameplay video](https://www.youtube.com/watch?v=3NrM0mTncqI)
 
+ ## Overview
+ 
 > This project is a modification of Andy Thomasson's implementation of well known Jos Stams's paper about fluid mechanics.
 > In the original version the fundamental gas propagation is implemented. My work expands on interaction with boxes.
 > Specifically it adds:
