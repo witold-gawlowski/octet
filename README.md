@@ -4,7 +4,7 @@
 
 ## Overview
  
-> This project is a modification of Andy Thomasson's implementation of well known Jos Stams's paper about fluid mechanics.
+> This project is a modification of Andy Thomasson's implementation of well known [Jos Stams's paper](http://www.intpowertechcorp.com/GDC03.pdf) about fluid mechanics.
 > In the original version the fundamental gas propagation is implemented. My work expands on interaction with boxes.
 > Specifically it adds:
 > * Fluid Drag Begind the object
