@@ -1,9 +1,7 @@
-#my_chamber
+# "Chamber" game using fluid simulation.
 
-### "Chamber" game using fluid simulation.
-
-[Gameplay video](https://www.youtube.com/watch?v=3NrM0mTncqI)
-
+## [Gameplay video](https://www.youtube.com/watch?v=3NrM0mTncqI)
+## Overview
 > This project is a modification of Andy Thomasson's implementation of well known Jos Stams's paper about fluid mechanics.
 > In the original version the fundamental gas propagation is implemented. My work expands on interaction with boxes.
 > Specifically it adds:
