@@ -19,7 +19,7 @@
 I have tracked the progress of the project in "outline" file available [here](https://github.com/witold-gawlowski/octet/blob/Intro_to_game_programming_1/octet/src/projects/my_chamber/Concept/Outline.txt).
 
 ## Player-box interaction
-I the box grid is an array that stores the index of a box occupying a given position. When players trys to walk over it, the function move_box with boxes index is called triggering 
+Box grid is an array that stores the index of a box occupying a given position. When players trys to walk over it, the function move_box with boxes index is called triggering 
 all necessary changes. 
 
 ## Visual feedback for leaks.
