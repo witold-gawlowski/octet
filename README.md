@@ -19,12 +19,10 @@
 I have tracked the progress of the project in "outline" file available [here](https://github.com/witold-gawlowski/octet/blob/Intro_to_game_programming_1/octet/src/projects/my_chamber/Concept/Outline.txt).
 
 ## Player-box interaction
-I the box grid is an array that stores the index of a box occupying a given position. When players trys to walk over it, the function move_box with boxes index is called triggering 
-all necessary changes. 
+Box grid is an array that stores the index of a box occupying a given position. When players trys to walk over it, the function move_box(box_index) is called triggering all necessary changes. 
 
 ## Visual feedback for leaks.
-I determine if the player is separated from the fluid source, as well as the separated area, using depth first seach algorithm (DFS). With DFS implemented it was easy to visualize
-a path that DFS travels when it reches the source. This is sometimes helpfull when its hard to spot the place where the created bareer is leaking. 
+I determine if the player is separated from the fluid source, as well as the separated area, using depth first seach algorithm (DFS). With DFS implemented it was easy to visualize a path that DFS travels when it reches the source. This is sometimes helpfull when its hard to spot the place where the created bareer is leaking. 
 
 ## Fluid-box interaction
 To simulate the interaction of dynamic elements with gas I have implemented several interaction mechanisms:
